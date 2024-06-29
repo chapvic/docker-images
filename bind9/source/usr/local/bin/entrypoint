@@ -1,0 +1,98 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+sUSER='named'
+sUID=`getent passwd ${sUSER} | awk -F':' '{print $3}'`
+sGID=`getent passwd ${sUSER} | awk -F':' '{print $4}'`
+sFIX=0
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+    sFIX=1
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+    sFIX=1
+fi
+if [ ${sFIX} -ne 0 ]; then
+    echo -e "${CL_YELLOW}[ Changing user & group permissions for '${sUSER}' ${CL_GREEN}-->${CL_YELLOW} UID=${PUID} / GID=${PGID} ]${CL_NONE}"
+    chown -R ${sUSER}:${sUSER} /app /www
+fi
+
+# Exporting global environment variables
+# - TSIG key name (default - 'tsig-key')
+export BIND9_TSIG_KEYNAME=${BIND9_TSIG_KEYNAME:-tsig-key}
+# - TSIG algorithm ( hmac-md5, hmac-sha1, hmac-sha224, hmac-sha256, hmac-sha384, hmac-sha512 )
+export BIND9_TSIG_KEYALG=${BIND9_TSIG_KEYALG:-hmac-sha512}
+
+# Bind9 startup arguments
+BIND9_OPTIONS=${BIND9_OPTIONS:-'-g'}
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting ${CL_YELLOW}[$(named -v | awk '{print $1" "$2}')]${CL_NONE}"
+    sudo chown $sUSER:$sUSER /app/etc
+    if [ -z "$(ls -A /app/etc)" ]; then
+        echo -e -n "${CL_MAGENTA}Applying default configuration... ${CL_NONE}"
+        sudo -u $sUSER cp -rf /app/var/dist/* /app/etc/
+        echo -e "${CL_GREEN}done${CL_NONE}"
+    fi
+    if ! [ -f /app/etc/rndc.key ]; then
+        keygen rndc
+    fi
+    # Check for key name is equal BIND9_TSIG_KEYNAME
+    if ! [ -f /app/etc/tsig.key ]; then
+        keygen tsig
+    else
+        keyname=`sed '/key \"/!d' /app/etc/tsig.key | awk '{print $2}' | sed 's/\"//g'`
+        if ! [ "$keyname" == "$BIND9_TSIG_KEYNAME" ]; then
+            echo -e "${CL_YELLOW}WARNING: ${CL_CYAN}TSIG key name is different from the saved key name and will be updated!${CL_NONE}"
+            keygen tsig
+        fi
+    fi
+    echo -e "${CL_CYAN}Summary information:${CL_NONE}"
+    named -V | grep '^\s'
+    # Fix permissions
+    chown -R $sUSER:$sUSER /app/etc
+    # Checking Bind9 configuration
+    echo -e -n "${CL_CYAN}Checking configuration... ${CL_NONE}"
+    out=`named-checkconf`
+    if [ $? -ne 0 ]; then
+        echo -e "${CL_RED}FAILED\n${CL_YELLOW}$out${CL_NONE}\n"
+        echo -e "${CL_RED}Exiting...${CL_NONE}"
+        exit 1
+    fi
+    echo -e "${CL_GREEN}VALID${CL_NONE}"
+    # Checking loaging zones
+    echo -e "${CL_CYAN}Loading zones:${CL_NONE}"
+    out=`named-checkconf -z 2>&1`
+    retval=$?
+    # Colorize loading output
+    out=`echo "$out" | sed -r -e 's/(.*loaded serial.*)/'\\${CL_GREEN}'\1'\\${CL_NONE}'/g' \
+    -e 's/(.*not loaded.*)/'\\${CL_RED}'\1'\\${CL_NONE}'/g' \
+    -e 's/(.*\(illegal\).*)/'\\${CL_YELLOW}'\1'\\${CL_NONE}'/g' \
+    -e 's/(.*file not found.*)/'\\${CL_RED}'\1'\\${CL_NONE}'/g'`
+    out=$(echo "$out" | envsubst)
+    echo -e "$out"
+    if [ $retval -ne 0 ]; then
+        echo -e "\n${CL_RED}Loading failed!${CL_NONE}\n"
+        echo -e "${CL_RED}Exiting...${CL_NONE}"
+        exit 1
+    fi
+    # Start bind9
+    echo -e "\n${CL_GREEN}All checks passed - starting service...${CL_NONE}"
+    exec su-exec ${sUSER} named ${BIND9_OPTIONS}
+else
+    exec $@
+fi

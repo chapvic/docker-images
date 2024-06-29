@@ -1,0 +1,21 @@
+services:
+
+    element:
+        image: $REGISTRY/$NAME:$ELEMENT_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - ELEMENT_SOURCE
+                - ELEMENT_VERSION
+                - ELEMENT_USE_CUSTOM_SDKS
+                - ELEMENT_REACT_SDK_REPO
+                - ELEMENT_REACT_SDK_BRANCH
+                - ELEMENT_JS_SDK_REPO
+                - ELEMENT_JS_SDK_BRANCH
+            tags:
+                - $REGISTRY/$NAME:latest

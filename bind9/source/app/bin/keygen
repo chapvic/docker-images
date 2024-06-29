@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# Returns 1 if user in sudoers
+in_sudo=`sudo -l -U named 2>/dev/null | sed '/named/d' | wc -l`
+
+# Caller UID
+uid=`id -u`
+
+# Bind9 process ID
+pid=$(pidof named)
+pid=${pid:-0}
+
+rndc_key='/app/etc/rndc.key'
+tsig_key='/app/etc/tsig.key'
+
+keygen_usage() {
+    echo -e "${CL_MAGENTA}Usage: ${CL_CYAN}$(basename $0) <option>${CL_NONE}"
+    echo "  rndc       - generate new rndc key"
+    echo "  tsig       - generate new TSIG key"
+    exit 1
+}
+
+keygen_rndc() {
+    [ "$in_sudo" == "1" ] || return 1
+    echo -e -n "${CL_MAGENTA}Generating new rndc key... ${CL_NONE}"
+    rndc-confgen | head -n6 > $rndc_key
+    if [ $? -ne 0 ]; then
+        echo -e "${CL_RED}failed${CL_NONE}"
+        return $?
+    fi
+    if [ ! -f "$rndc_key" ]; then
+        echo -e "${CL_RED}failed (rndc key not created)${CL_NONE}"
+        return 1
+    fi
+    if [ -f "$rndc_key" ]; then
+        [ $uid -eq 0 ] && chown named:named $rndc_key
+        keyname=`sed '/key \"/!d' $rndc_key | awk '{print $2}' | sed 's/\"//g'`
+        if [ ! "$keyname" == "rndc-key" ]; then
+            echo -e "${CL_RED}failed (key name is not recognized)${CL_NONE}"
+            exit 1
+        fi
+        if [ $pid -ne 0 ]; then
+            sudo kill -HUP $(pidof named) &>/dev/null
+            rndc reload &>/dev/null
+        fi
+        retval=$?
+        [ $retval -eq 0 ] && echo -e "${CL_GREEN}done${CL_NONE}" || echo -e "${CL_RED}failed${CL_NONE}"
+        return $retval
+    else
+        echo -e "${CL_RED}failed (keyfile is not created)${CL_NONE}"
+    fi
+}
+
+keygen_tsig() {
+    echo -e -n "${CL_MAGENTA}Generating new TSIG key... ${CL_NONE}"
+    tsig-keygen -a ${BIND9_TSIG_KEYALG} ${BIND9_TSIG_KEYNAME} > $tsig_key
+    retval=$?
+    if [ -f "$tsig_key" ]; then
+        [ $uid -eq 0 ] && chown named:named $tsig_key
+        keyname=`sed '/key \"/!d' $tsig_key | awk '{print $2}' | sed 's/\"//g'`
+        if [ "$keyname" == "${BIND9_TSIG_KEYNAME}" ]; then
+            echo -e "${CL_GREEN}done${CL_NONE}"
+        else
+            echo -e "${CL_RED}failed (key name is not recognized)${CL_NONE}"
+            exit 1
+        fi
+    else
+        echo -e "${CL_RED}failed (keyfile is not created)${CL_NONE}"
+    fi
+    return $retval
+}
+
+[ "$1" == "" ] && keygen_usage
+
+[ "$1" == "rndc" ] && {
+    keygen_rndc
+    exit $?
+}
+
+[ "$1" == "tsig" ] && {
+    keygen_tsig
+    exit $?
+}
+
+echo -e "${CL_RED}ERROR: Invalid key type!${CL_NONE}"
+exit 1

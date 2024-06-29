@@ -1,0 +1,16 @@
+#!/bin/bash
+
+REPO_URL="https://github.com/go-gitea/gitea"
+REPO_PATH="raw/main/options/locale"
+
+SRC="locale_en-US.ini"
+DST="locale_ru-RU.ini"
+
+echo -n "Downloading locale files... "
+rm -f ${SRC} ${DST}
+wget -q ${REPO_URL}/${REPO_PATH}/${SRC} && echo -n " [${SRC}]"
+wget -q ${REPO_URL}/${REPO_PATH}/${DST} && echo -n " [${DST}]"
+echo
+
+echo "Fix translations..."
+./fix_locale -in $DST -mod translate.ini -out $DST

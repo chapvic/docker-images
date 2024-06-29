@@ -1,0 +1,91 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-mariadb:
+        silent: true
+        internal: true
+        vars:
+            MARIADB_TAG:
+                sh: git ls-remote --refs {{.MARIADB_SOURCE}} 'refs/tags/mariadb-{{.VERSION}}.*' | sed -e '/.*^{}/d; s,.*\/,,; /.*\..*\..*\..*/d' | sort --version-sort | tail -n1
+            MARIADB_VERSION:
+                sh: echo {{.MARIADB_TAG}} | sed -r 's/mariadb-(.*)/\1/'
+        cmds:
+            - sed -i '/VERSION=/d; /MARIADB_TAG=/d' .env
+            - echo -e "VERSION={{.VERSION}}\nMARIADB_VERSION={{.MARIADB_VERSION}}\nMARIADB_TAG={{.MARIADB_TAG}}" >> .env
+            - docker compose build --push
+            - sed -i '/VERSION=/d; /MARIADB_TAG=/d' .env
+            - echo "[ Done ]"
+
+    build:
+        desc: 'Build MariaDB Server'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building MariaDB Server ]\e[0;0m'
+            - for: { var: MARIADB_VERSION_LIST }
+              task: build-mariadb
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    sync-mariadb:
+        silent: true
+        internal: true
+        vars:
+            MARIADB_TAG:
+                sh: git ls-remote --refs {{.MARIADB_SOURCE}} 'refs/tags/mariadb-{{.VERSION}}.*' | sed -e '/.*^{}/d; s,.*\/,,; /.*\..*\..*\..*/d' | sort --version-sort | tail -n1
+            MARIADB_VERSION:
+                sh: echo {{.MARIADB_TAG}} | sed -r 's/mariadb-(.*)/\1/'
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.MARIADB_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.MARIADB_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.MARIADB_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.MARIADB_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    sync:
+        desc: "Synchronize with DockerHub"
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building MariaDB Server ]\e[0;0m'
+            - for: { var: MARIADB_VERSION_LIST }
+              task: sync-mariadb
+              vars:
+                VERSION: '{{.ITEM}}'
+
+
+    checkout-mariadb:
+        silent: true
+        internal: true
+        vars:
+            MARIADB_TAG:
+                sh: git ls-remote --refs {{.MARIADB_SOURCE}} 'refs/tags/mariadb-{{.VERSION}}.*' | sed -e '/.*^{}/d; s,.*\/,,; /.*\..*\..*\..*/d' | sort --version-sort | tail -n1
+            MARIADB_VERSION:
+                sh: echo {{.MARIADB_TAG}} | sed -r 's/mariadb-(.*)/\1/'
+        cmds:
+            - echo -n "{{.MARIADB_VERSION}} "
+
+    checkout:
+        silent: true
+        cmds:
+            - for: { var: MARIADB_VERSION_LIST }
+              task: checkout-mariadb
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl -s -X PUT --unix-socket /run/unit.sock --data-binary @/app/share/welcome/welcome.json http://localhost/config > /dev/null

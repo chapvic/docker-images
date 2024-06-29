@@ -1,0 +1,20 @@
+services:
+
+    php:
+        image: $REGISTRY/$NAME:$PHP_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: $PHP_TARGET
+            args:
+                - REGISTRY
+                - ALPINE_VERSION
+                - PHP_NUM
+                - PHP_VERSION
+                - PHP_MODULES
+                - PECL_MODULES
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest

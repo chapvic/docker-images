@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl -i --unix-socket /app/var/run/unit/control.unit.sock http://localhost/status/connections &>/dev/null || exit 1

@@ -1,0 +1,54 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Build Nginx Web Server'
+        silent: true
+        vars:
+            NGINX_VERSION:
+                sh: git ls-remote --tags {{.NGINX_SOURCE}} 'refs/tags/release-*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | awk -F'-' '{print $2}' | sort --version-sort | tail -n1
+        cmds:
+            - echo -e '\e[44;1m[ Building Nginx Web Server ]\e[0;0m'
+            - sed -i '/NGINX_VERSION=/d' .env
+            - echo "NGINX_VERSION={{.NGINX_VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/NGINX_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    sync:
+        desc: "Synchronize with DockerHub"
+        silent: true
+        vars:
+            NGINX_VERSION:
+                sh: git ls-remote --tags {{.NGINX_SOURCE}} 'refs/tags/release-*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | awk -F'-' '{print $2}' | sort --version-sort | tail -n1
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.NGINX_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.NGINX_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.NGINX_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.NGINX_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            NGINX_VERSION:
+                sh: git ls-remote --tags {{.NGINX_SOURCE}} 'refs/tags/release-*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | awk -F'-' '{print $2}' | sort --version-sort | tail -n1
+        cmds:
+            - echo {{.NGINX_VERSION}}
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

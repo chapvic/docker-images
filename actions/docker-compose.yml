@@ -1,0 +1,13 @@
+services:
+
+    alpine:
+        image: $REGISTRY/$NAME:alpine
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: actions-alpine
+            args:
+                - REGISTRY
+                - TOOLS_URL
+                - TOOLS_LIST

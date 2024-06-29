@@ -1,0 +1,22 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+KMS_ACT_INTERVAL=${KMS_ACT_INTERVAL:-43200}
+KMS_UPD_INTERVAL=${KMS_UPD_INTERVAL:-43200}
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting Volume License (KMS) daemon"
+    echo -e "${CL_YELLOW}- Setting up activation interval : ${CL_WHITE}$KMS_ACT_INTERVAL${CL_NONE}"
+    echo -e "${CL_YELLOW}- Setting up update interval     : ${CL_WHITE}$KMS_UPD_INTERVAL${CL_NONE}"
+    exec vlmcsd -e -D -A $KMS_ACT_INTERVAL -R $KMS_UPD_INTERVAL
+else
+    exec "$@"
+fi

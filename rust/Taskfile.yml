@@ -1,0 +1,40 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Build Rust Programming Language'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building Apache Web Server ]\e[0;0m'
+            - docker compose build --push
+            - echo "[ Done ]"
+
+    sync:
+        desc: "Synchronize with DockerHub"
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        cmds:
+            - echo latest
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

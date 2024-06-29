@@ -1,0 +1,85 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-php:
+        silent: true
+        internal: true
+        vars:
+            PHP_NUM:
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | grep {{.PHP_VERSION}} | awk -n '{print $1}'
+            ALPINE_VERSION:
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | grep {{.PHP_VERSION}} | awk -n '{print $3}'
+            PHP_MODULES:
+                sh: grep '{{.PHP_NUM}} ' php_modules | sed -r 's/^[0-9 ]+//g; s/\s+//g; s/(.*)/php{{.PHP_NUM}}-\1/g' | tr '\n' ' '
+            PECL_MODULES:
+                sh: grep '{{.PHP_NUM}} ' pecl_modules | sed -r 's/^[0-9 ]+//g; s/\s+//g; s/(.*)/php{{.PHP_NUM}}-pecl-\1/g' | tr '\n' ' '
+            PHP_TARGET:
+                sh: |
+                    [[ -n $(grep {{.PHP_NUM}} version_map | grep '+') ]] && echo "php-ioncube" || echo "php-default"
+
+        cmds:
+            - echo "- Build PHP {{.PHP_VERSION}}"
+            - sed -i '/NUM=/d; /VERSION=/d; /MODULES=/d; /PHP_TARGET=/d' .env
+            - echo -e "PHP_NUM={{.PHP_NUM}}\nPHP_VERSION={{.PHP_VERSION}}\nALPINE_VERSION={{.ALPINE_VERSION}}" >> .env
+            - echo -e "PECL_MODULES={{.PECL_MODULES}}\nPHP_MODULES={{.PHP_MODULES}}" >> .env
+            - echo "PHP_TARGET={{.PHP_TARGET}}" >> .env
+            - docker compose build --push
+            - sed -i '/NUM=/d; /VERSION=/d; /MODULES=/d; /PHP_TARGET=/d' .env
+            - echo "[ Done ]"
+
+    build:
+        desc: 'Build PHP'
+        silent: true
+        vars:
+            PHP_VERSION_LIST:
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk -n '{printf "%s ",$2}'
+        cmds:
+            - echo -e '\e[44;1m[ Building PHP ]\e[0;0m'
+            - for: { var: PHP_VERSION_LIST }
+              task: build-php
+              vars:
+                PHP_VERSION: '{{.ITEM}}'
+
+    sync-php:
+        silent: true
+        internal: true
+        cmds:
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.PHP_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.PHP_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.PHP_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.PHP_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    sync:
+        desc: 'Synchronize with DockerHub'
+        silent: true
+        vars:
+            PHP_VERSION_LIST:
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk -n '{printf "%s ",$2}'
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - for: { var: PHP_VERSION_LIST }
+              task: sync-php
+              vars:
+                PHP_VERSION: '{{.ITEM}}'
+
+    checkout:
+        silent: true
+        cmds:
+            - sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk -n '{printf "%s ",$2}'
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

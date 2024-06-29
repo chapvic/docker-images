@@ -1,0 +1,41 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  Build:
+    runs-on: ubuntu-latest
+    container: chapvic/actions:alpine
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to MyDocker
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.MYDOCKER_NAME }}
+        username: ${{ secrets.MYDOCKER_USERNAME }}
+        password: ${{ secrets.MYDOCKER_PASSWORD }}
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.TARGET_NAME }}
+        username: ${{ secrets.TARGET_USERNAME }}
+        password: ${{ secrets.TARGET_PASSWORD }}
+
+    - name: Build images
+      run: ./build.sh "${{ secrets.MYDOCKER_NAME }}" "${{ secrets.TARGET_NAME}}/${{ secrets.TARGET_USERNAME }}"
+
+    - name: Send notification
+      uses: chapvic/telegram-notify@master
+      if: always()
+      with:
+        chat: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        status: ${{ job.status }}
+        title: "Build Containers"

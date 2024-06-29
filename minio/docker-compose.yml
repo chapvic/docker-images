@@ -1,0 +1,14 @@
+services:
+
+    minio:
+        image: $REGISTRY/$NAME:latest
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - MINIO_SOURCE
+                - MINIO_VERSION
+                - PUID
+                - PGID

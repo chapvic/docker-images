@@ -1,0 +1,98 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+sUSER='yandex'
+sHOME='/yandex'
+sUID=`getent passwd ${sUSER} | awk -F':' '{print $3}'`
+sGID=`getent passwd ${sUSER} | awk -F':' '{print $4}'`
+sFIX=0
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+    sFIX=1
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+    sFIX=1
+fi
+if [ ${sFIX} -ne 0 ]; then
+    echo "${CL_YELLOW}[ Changing user & group permissions for '${sUSER}' ${CL_GREEN}-->${CL_YELLOW} UID=${PUID} / GID=${PGID} ]${CL_NONE}"
+    chown -R ${sUSER}:${sUSER} ${sHOME}
+fi
+
+YADISK_STDOUT_LOG=${YADISK_STDOUT_LOG:-0}
+
+do_setup=1
+config_file=${sHOME}/.config/yandex-disk/config.cfg
+
+if [ "$1" == "setup" ] ; then
+    rm -rf ${sHOME}/.config
+    shift
+fi
+
+
+if [ -z "$1" ] || [ "$1" == "setup" ] ; then
+    # Bypass 'yandex-disk' command in command line & prepare new command line with sudo
+    set -- exec sudo -u ${sUSER} yandex-disk "$@"
+    title=$(yandex-disk -v | head -n1)
+    echo -e "${CL_GREEN}Starting $(echo "$title" | awk '{print $1}') ${CL_YELLOW}$(echo "$title" | awk '{print $2}')${CL_NONE}"
+    if [ -f ${config_file} ]; then
+        . ${config_file}
+        if [ -n "${dir}" ]; then
+            do_setup=0
+        fi
+    fi
+    if [ ${do_setup} -eq 1 ]; then
+        echo -e "${CL_MAGENTA}"
+        echo -e "[ --- SETUP MODE --- ]"
+        echo -e "${CL_NONE}"
+        "$@" setup
+    else
+        if ! [ -f ${config_file} ]; then
+            echo -e "${CL_RED}FATAL: Configuration file is not found!${CL_NONE}"
+            echo -e "${CL_YELLOW}Cleanup configuration directory...${CL_NONE}"
+            rm -rf ${sHOME}/.config
+            exit 1
+        fi
+        . ${config_file}
+        path=${dir:-$sHOME/Yandex.Disk}
+        proxy=${proxy:-no}
+        clilog=${path}/.sync/cli.log
+        corelog=${path}/.sync/core.log
+        pushlog=${path}/.sync/push.log
+        if ! [ -d "${path}/.sync" ]; then
+            sudo mkdir -p ${path}/.sync
+        fi
+        sudo touch "${clilog}"
+        sudo touch "${corelog}"
+        sudo touch "${pushlog}"
+        echo -e "${CL_MAGENTA}- CLI logfile  : ${CL_CYAN}${clilog}${CL_NONE}"
+        echo -e "${CL_MAGENTA}- Core logfile : ${CL_CYAN}${corelog}${CL_NONE}"
+        echo -e "${CL_MAGENTA}- Push logfile : ${CL_CYAN}${pushlog}${CL_NONE}"
+        if [ $YADISK_STDOUT_LOG -ne 0 ]; then
+            echo -e "${CL_GREEN}- Logging to STDOUT enabled : ${CL_WHITE}${corelog}${CL_NONE}"
+            tail --pid=1 -q -f "${corelog}" | sed -e 's/$/\r/g' &
+        else
+            echo -e "${CL_YELLOW}- Logging to STDOUT disabled${CL_NONE}"
+        fi
+        echo ""
+        "$@" start -D --proxy="$proxy" --dir="${path}"
+    fi
+else
+    exec "$@"
+fi

@@ -1,0 +1,55 @@
+services:
+
+    alpine-slim:
+        image: $REGISTRY/$NAME:$ALPINE_VERSION-slim
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: alpine-slim
+            args:
+                - REGISTRY
+                - LANG
+                - TZ
+                - ALPINE_SOURCE
+            tags:
+                - $REGISTRY/$NAME:$VERSION-slim
+                - $REGISTRY/$NAME:slim
+
+    alpine-base:
+        image: $REGISTRY/$NAME:$ALPINE_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: alpine-base
+            args:
+                - REGISTRY
+                - NAME
+                - LANG
+                - TZ
+                - ALPINE_SOURCE
+                - ALPINE_VERSION
+                - VERSION
+            tags:
+                - $REGISTRY/$NAME:$VERSION
+                - $REGISTRY/$NAME:latest
+
+    alpine-dev:
+        image: $REGISTRY/$NAME-dev:$ALPINE_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: alpine-dev
+            args:
+                - REGISTRY
+                - NAME
+                - LANG
+                - TZ
+                - ALPINE_SOURCE
+                - ALPINE_VERSION
+                - VERSION
+            tags:
+                - $REGISTRY/$NAME-dev:$VERSION
+                - $REGISTRY/$NAME-dev:latest

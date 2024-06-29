@@ -1,0 +1,17 @@
+services:
+
+    bind9:
+        image: $REGISTRY/$NAME:$BIND9_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - BIND9_SOURCE
+                - BIND9_VERSION
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:$VERSION
+                - $REGISTRY/$NAME:latest

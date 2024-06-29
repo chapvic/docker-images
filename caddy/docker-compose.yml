@@ -1,0 +1,16 @@
+services:
+
+    caddy:
+        image: $REGISTRY/$NAME:$CADDY_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - CADDY_VERSION
+                - XCADDY_SOURCE
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest

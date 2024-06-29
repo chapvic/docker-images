@@ -1,0 +1,265 @@
+#!/bin/bash
+
+NOLOGO=0
+JSON=0
+HELP=0
+QUIET=0
+CMD=
+
+# Array of valid commands
+CMDS=(" dump info list reload status sync update ")
+
+function _err() {
+    [[ $QUIET -eq 1 ]] || echo -e "FATAL: $1" >&2
+    exit 1
+}
+
+function _log() {
+    [[ $QUIET -eq 1 ]] || echo -e "$1" >&1
+}
+
+function _nlog() {
+    [[ $QUIET -eq 1 ]] || echo -e -n "$1" >&1
+}
+
+function _opt_check(){
+    if [[ $2 == -* ]]; then 
+        _err "Option $1 requires an argument!"
+    fi
+}
+
+# Print logo text
+function _logo() {
+    [[ $QUIET -eq 0 ]] || return
+    if [[ $NOLOGO -eq 0 ]]; then
+        _log "DNS Administration Utility, v1.0.0"
+        # suppress text logo for feature
+        NOLOGO=1
+    fi
+}
+
+# Print usage information
+function _usage() {
+    NOLOGO=0
+    QUIET=0
+    _logo
+    echo "Usage: $(basename $0) [options] <command> [arguments]...
+
+Options:
+    -h      Help about specified command or this help screen else
+    -n      Suppress text logo
+    -q      Output data without any messages (quiet mode)
+    -j      Output in JSON format (soon...)
+
+Commands:
+    info                Display server information
+    list                List zones
+    sync                Save changes to disk and remove journal files
+    dump <zone>         Dump all records for <zone>
+    status <zone>       Display status information about <zone>
+    reload <zone>|@     Reload zone (@ - reload all zones)
+"
+    exit 127
+}
+
+function _zone_required() {
+    if [ -z "$1" ]; then
+        _err "Zone name is required!"
+    elif [ "${1:0:1}" == "-" ]; then
+        _err "Invalid zone name: $1"
+    fi
+}
+
+# ==========================================================================================
+
+function _cmd_info() {
+    _logo
+    _log "\nServer information:\n-------------------\n"
+    echo "$(rndc status)"
+    _log "\n-------------------"
+}
+
+# ==========================================================================================
+
+# Print list of domains
+function _cmd_list() {
+    _logo
+    _log "\nList of domain zones:\n---------------------"
+    named-checkconf -l | grep -vE '^[0-9]|^\.|^localhost\.|^localdomain\.' | awk '{print $1}'
+}
+
+function _cmd_sync() {
+    _logo
+    _nlog "Save changes to all dynamic zones to disk... "
+    rndc sync -clean 2>/dev/null || {
+        _log "Failed!"
+        exit
+    }
+    _log "OK"
+}
+
+function _cmd_status() {
+    _logo
+    _zone_required $1
+    _nlog "Loading status for '$1'... "
+    status=$(rndc zonestatus $1 2>/dev/null) || {
+        _log "Failed!"
+        _err "Zone '$1' is not exist!"
+    }
+    _log "OK\n---\n"
+    echo "$status"
+}
+
+# ==========================================================================================
+
+function _cmd_reload() {
+    _logo
+    _zone_required $1
+    if [ "$1" == "@" ]; then
+        domlist=$(named-checkconf -l | grep -vE '^[0-9]|^\.|^localhost\.|^localdomain\.' | awk '{print $1}')
+    else
+        status=$(rndc zonestatus $1 2>/dev/null) || _err "Zone '$1' is not exist!"
+        domlist=$1
+    fi
+    for dom in $domlist; do
+        _log "Reloading zone '$dom'..."
+        status=$(rndc zonestatus $dom 2>/dev/null) || _err "Zone '$dom' is not exist!"
+        # update zone serial number
+        serial=$(date +%s)
+        sed -i -r 's/(\s+)[0-9]+ ; serial.*/\1'$serial' ; serial/' /app/etc/master/$dom
+        dyn=$(echo "$status" | grep 'dynamic:' | awk '{print $2}')
+        if [ "$dyn" == "yes" ]; then
+            status=$(rndc freeze $dom)
+            [[ -z "$status" ]] || _log "$status"
+            _log "$(rndc reload $dom)"
+            _log "$(rndc thaw $dom)"
+        else
+            _log "$(rndc reload $dom)"
+        fi
+    done
+}
+
+# ==========================================================================================
+
+function _cmd_dump() {
+    _logo
+    _zone_required $1
+    status=$(rndc zonestatus $1 2>/dev/null) || {
+        _err "Zone '$1' is not exist!"
+    }
+    rndc dumpdb -zones 2>/dev/null || {
+        _err "Cannot create dump file!"
+    }
+    path=$(named -V | grep 'named PID file:' | awk -F':' '{print $2}')
+    [ -n "$path" ] || _err "Path not found for dump file!"
+    dump=$(dirname $path)/cache_dump.db
+    [ -f "$dump" ] || _err "Dump file '$dump' is not found!"
+    sed -ne '/^'$1'..*IN SOA/,$ p' $dump | sed '/;/q'
+    #cat $dump | sed -ne '/'$1'\/IN/,$ p' | sed -n -e '3,$p' | sed '/^;/q' | sed '/^;/d'
+    #sed '/^;/d' $dump | grep -E "^$1."
+}
+
+# ==========================================================================================
+
+
+# ==========================================================================================
+
+function _cmd_update() {
+    _logo
+    _log "Sync all existing zones..."
+    _cmd_sync
+    _log "Update zones..."
+    zones=$(ls -1 /app/etc/master/*)
+    echo -n > /app/etc/master.conf
+    if [ -n "$zones" ]; then
+        for zone in $zones; do
+            zone=$(basename $zone)
+            _nlog "- $zone ... "
+            sed -e 's/%ZONE%/'$zone'/g' -e 's/%TRANSFER%/none;/g' /app/etc/zone.template >> /app/etc/master.conf
+            _log "OK"
+        done
+    fi
+    _log "Reloading server configuration..."
+    status=$(rndc reload)
+    _log "Recompile zones and update serial numbers..."
+    serial=$(date +%s)
+    if [ -n "$zones" ]; then
+        for zone in $zones; do
+            zone=$(basename $zone)
+            _nlog "- $zone ... "
+            # update zone serial number
+            sed -i -r 's/(\s+)[0-9]+ ; serial.*/\1'$serial' ; serial/' /app/etc/master/$zone
+            # reload  zone
+            q=$QUIET
+            QUIET=1
+            _cmd_reload $zone
+            QUIET=$q
+            # recompile zone file
+            named-compilezone -f text -F text -J /app/etc/master/$zone.jnl -s relative -o /tmp/$zone $zone /app/etc/master/$zone > /dev/null
+            # replace with new zone file
+            if [ $? -eq 0 ] && [ -f /tmp/$zone ]; then
+                cp -f /tmp/$zone /app/etc/master/$zone.jnl
+                _log "OK"
+            else
+                _log "Error"
+            fi
+        done
+    fi
+    _log "Resync all zones..."
+    _cmd_sync
+}
+
+# ==========================================================================================
+
+while getopts ':hnqj' opt; do
+    case $opt in
+    h)
+        HELP=1
+        ;;
+    n)
+        NOLOGO=1
+        ;;
+    j)
+        JSON=1
+        ;;
+    q)
+        QUIET=1
+        NOLOGO=1
+        ;;
+    :)
+        echo "Option -$OPTARG requires an argument!" >&2
+        exit 1
+        ;;
+    ?)
+        _err "Invalid option: -${OPTARG}"
+        ;;
+    esac
+done
+shift "$(($OPTIND-1))"
+
+# Check for given options
+opt_count=$(( $HELP + $JSON + $NOLOGO ))
+
+# Check for command present
+if [ $# -eq 0 ] && [ $opt_count -gt 0 ] && [ $HELP -eq 0 ]; then
+    _err "Command required!"
+fi
+
+# Show usage information if needed
+if [ $# -eq 0 ] || [ $HELP -eq 1 ]; then
+    _usage
+fi
+
+# Save command (in lower-case)
+CMD=${1,,}
+shift
+
+# Check for command is valid name
+if [[ ! " ${CMDS[*]} " =~ " ${CMD} " ]]; then
+    _err "Invalid command - ${CMD}!"
+fi
+
+cmd="_cmd_${CMD}"
+result=$($cmd $*)
+result=$(echo "$result" | sed '/^$/d')
+[[ -z "$result" ]] || echo "$result"

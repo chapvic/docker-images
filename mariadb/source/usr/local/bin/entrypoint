@@ -1,0 +1,129 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+sUSER='mysql'
+sUID=`getent passwd ${sUSER} | awk -F':' '{print $3}'`
+sGID=`getent passwd ${sUSER} | awk -F':' '{print $4}'`
+sFIX=0
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
+MARIADB_OPTIONS=${MARIADB_OPTIONS:-}
+
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+    sFIX=1
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+    sFIX=1
+fi
+if [ ${sFIX} -ne 0 ]; then
+    echo "${CL_YELLOW}[ Changing user & group permissions for '${sUSER}' ${CL_GREEN}-->${CL_YELLOW} UID=${PUID} / GID=${PGID} ]${CL_NONE}"
+    chown -R ${sUSER}:${sUSER} /app /data
+fi
+if [ -f "/etc/my.cnf" ]; then
+    chown -R ${sUSER}:${sUSER} /etc/my.cnf
+fi
+
+# Always fix log and run directories permissions for the docker volume mapping !!!
+chown -R ${sUSER}:${sUSER} /app/log /app/run
+
+SOCKET=$(mariadb-config --socket)
+
+# $1 - clean password
+function _password_hash() {
+    echo "SELECT PASSWORD('$1');" | mariadb -N
+}
+
+# $1 - user
+# $2 - host
+# $3 - password hash
+function _set_password() {
+    echo -e "${CL_MAGENTA}-- update password for ${CL_YELLOW}'$1'@'$2'${CL_NONE}"
+    echo "SET PASSWORD FOR '$1'@'$2' = '$3';" | mariadb
+}
+
+# $1 - user
+# $2 - host
+# $3 - password hash
+function _create_admin() {
+    echo -e "${CL_MAGENTA}-- create user ${CL_YELLOW}'$1'@'$2'${CL_NONE}"
+    echo "
+        CREATE USER '$1'@'$2';
+        SET PASSWORD FOR '$1'@'$2' = '$3';
+        GRANT ALL PRIVILEGES ON *.* TO '$1'@'$2' WITH GRANT OPTION;
+    " | mariadb
+}
+
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting MariaDB Server ${CL_YELLOW}[$MARIADB_VERSION]${CL_NONE}"
+    # Check database installation
+    if [ ! -d "/data/mysql" ]; then
+        echo -e "${CL_CYAN}- installing new database...${CL_NONE}"
+        ./scripts/mariadb-install-db --user=mysql --datadir=/data
+        mariadbd-safe --user=mysql --datadir=/data --log-error=/app/log/mariadb.err &
+        while [[ ! -S "$SOCKET" ]]; do
+            sleep 1s
+        done
+
+        # Check for root user
+        echo -e "${CL_CYAN}- setting up database users...${CL_NONE}"
+        if [[ -n "${MARIADB_ROOT_PASSWORD_HASH}" ]]; then
+            _set_password "root" "localhost" "${MARIADB_ROOT_PASSWORD_HASH}"
+            _create_admin "root" "%" "${MARIADB_ROOT_PASSWORD_HASH}"
+        elif [[ -n "${MARIADB_ROOT_PASSWORD}" ]]; then
+            pass=$(_password_hash "${MARIADB_ROOT_PASSWORD}")
+            _set_password "root" "localhost" "$pass"
+            _create_admin "root" "%" "$pass"
+        else
+            echo -e "${CL_YELLOW}WARNING:${CL_WHITE} User 'root' has no password!${CL_NONE}"
+        fi
+
+        # Check for admin user
+        if [[ -n "${MARIADB_ADMIN_USER}" ]]; then
+            if [[ -n "${MARIADB_ADMIN_PASSWORD_HASH}" ]]; then
+                _create_admin "${MARIADB_ADMIN_USER}" "%" "${MARIADB_ADMIN_PASSWORD_HASH}"
+            elif [[ -n "${MARIADB_ADMIN_PASSWORD}" ]]; then
+                _create_admin "${MARIADB_ADMIN_USER}" "%" "$(_password_hash "${MARIADB_ADMIN_PASSWORD}")"
+            else
+                echo -e "${CL_RED}ERROR:${CL_YELLOW} Admin user '${MARIADB_ADMIN_USER}' is not created - password is empty!${CL_NONE}"
+            fi
+        fi
+
+        # Remove empty usernames
+        echo -e "${CL_CYAN}- remove empty usernames...${CL_NONE}"
+        h=$(hostname)
+        echo "
+            DROP USER IF EXISTS ''@'localhost';
+            DROP USER IF EXISTS ''@'$h';
+        " | mariadb
+
+        # Drop test database
+        echo -e "${CL_CYAN}- drop 'test' database...${CL_NONE}"
+        echo "DROP DATABASE IF EXISTS test;" | mariadb
+
+        # Flush privileges
+        echo -e "${CL_CYAN}- flush privileges...${CL_NONE}"
+        echo "FLUSH PRIVILEGES;" | mariadb
+    fi
+    echo -e "${CL_GREEN}MariaDB is ready!${CL_NONE}"
+    mariadbd-safe --user=mysql --datadir=/data --log-error=/app/log/mariadb.err ${MARIADB_OPTIONS} &
+    exec infinite mariadb-admin shutdown
+else
+    exec "$@"
+fi

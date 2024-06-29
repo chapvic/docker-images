@@ -1,0 +1,70 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+if [[ ! -d /data ]]; then
+  mkdir -p /data
+fi
+
+cd /data
+
+if [[ -z "$FORGEJO_INSTANCE_URL" ]]; then
+    echo "FATAL: Forgejo instance URL is empty!"
+    exit 1
+fi
+
+RUNNER_CONFIG_FILE=${RUNNER_CONFIG_FILE:-'/data/config.yaml'}
+RUNNER_STATE_FILE=${RUNNER_STATE_FILE:-'.runner'}
+RUNNER_LABELS=${RUNNER_LABELS:-'ubuntu-latest'}
+RUNNER_NAME=${RUNNER_NAME:-`hostname`}
+RUNNER_DOCKER_SOCKET=${RUNNER_DOCKER_SOCKET:-/var/run/docker.sock}
+RUNNER_MAX_REG_ATTEMPTS=${RUNNER_MAX_REG_ATTEMPTS:-10}
+
+if [ -f "$RUNNER_DOCKER_SOCKET" ]; then
+    echo "FATAL: Docker socket is not exist - $RUNNER_DOCKER_SOCKET"
+    exit 1
+fi
+
+if [[ -z "${RUNNER_REGISTRATION_TOKEN}" ]]; then
+    if [[ -n "${RUNNER_REGISTRATION_TOKEN_FILE}" ]] && [[ -f "${RUNNER_REGISTRATION_TOKEN_FILE}" ]]; then
+        RUNNER_REGISTRATION_TOKEN=$(cat "${RUNNER_REGISTRATION_TOKEN_FILE}")
+    else
+        echo "FATAL: No registration token!"
+        exit 1
+    fi
+fi
+
+test -f "$RUNNER_STATE_FILE" || echo "$RUNNER_STATE_FILE is missing or not a regular file"
+
+if [[ ! -s "$RUNNER_STATE_FILE" ]]; then
+    try=$((try + 1))
+    success=0
+    while [[ $success -eq 0 ]] && [[ $try -lt ${RUNNER_MAX_REG_ATTEMPTS} ]]; do
+        act_runner register \
+            --instance "${FORGEJO_INSTANCE_URL}" \
+            --config   "${RUNNER_CONFIG_FILE}" \
+            --name     "${RUNNER_NAME}" \
+            --labels   "'${RUNNER_LABELS}'" \
+            --token    "${RUNNER_REGISTRATION_TOKEN}" \
+            --no-interactive 2>&1 | tee /tmp/reg.log
+
+        cat /tmp/reg.log | grep 'Runner registered successfully' > /dev/null
+        if [[ $? -eq 0 ]]; then
+            echo "SUCCESS"
+            success=1
+        else
+            echo "Waiting to retry ..."
+            sleep 5
+        fi
+    done
+fi
+
+# Prevent reading the token from the act_runner process
+unset RUNNER_REGISTRATION_TOKEN
+unset RUNNER_REGISTRATION_TOKEN_FILE
+
+# Set FACL for runner user (modify /var/run/docker.sock)
+setfacl --modify user:runner:rw $RUNNER_DOCKER_SOCKET
+
+chown -R runner:runner /data
+exec su-exec runner act_runner daemon --config "${RUNNER_CONFIG_FILE}"

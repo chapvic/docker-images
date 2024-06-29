@@ -1,0 +1,4 @@
+#!/bin/bash
+
+nginx -s stop
+sleep 2

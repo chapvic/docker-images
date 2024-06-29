@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eo pipefail
+
+curl -f http://localhost${MINIO_ADDRESS:-:9000}/minio/health/live

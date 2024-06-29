@@ -1,0 +1,18 @@
+services:
+
+    nginx:
+        image: $REGISTRY/$NAME:$NGINX_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - NGINX_SOURCE
+                - NGINX_VERSION
+                - GEOIP2_SOURCE
+                - GEOIP2_VERSION
+            tags:
+                - $REGISTRY/$NAME:latest

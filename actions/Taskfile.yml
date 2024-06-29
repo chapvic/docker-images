@@ -1,0 +1,63 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+vars:
+    TAGS: "alpine"
+
+tasks:
+
+    build-tag:
+        silent: true
+        internal: true
+        cmds:
+            - echo "{{.TITLE}}"
+            - docker compose build --push {{.TAG}}
+            - echo "[ Done ]"
+
+    build:
+        desc: 'Build Actions TAG'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building Actions TAGS ]\e[0;0m'
+            - for: { var: TAGS }
+              task: build-tag
+              vars:
+                TITLE: "- Action TAG [{{.ITEM}}]"
+                TAG: '{{.ITEM}}'
+
+    sync-tag:
+        silent: true
+        internal: true
+        cmds:
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.TAG}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.TAG}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.TAG}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.TAG}}
+            - echo "[ Done ]"
+
+    sync:
+        desc: 'Synchronize with DockerHub'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - for: { var: TAGS }
+              task: sync-tag
+              vars:
+                TAG: '{{.ITEM}}'
+
+    checkout:
+        silent: true
+        cmds:
+            - echo latest
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

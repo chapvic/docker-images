@@ -1,0 +1,14 @@
+#!/bin/bash
+
+for f in $(ls -1 ./src/*); do
+    fn=$(basename $f)
+    diff -c $f patched/$fn > $fn.patch
+    sed -i 's,patched,src,' $fn.patch
+    mv $fn.patch ../src/$fn.patch
+    if [ -f "../src/$fn.patch" ]; then
+        echo "SUCCESS: File '$fn.patch' ready!"
+    else
+        echo "ERROR: File '$fn.patch' is not generated!"
+    fi
+done
+

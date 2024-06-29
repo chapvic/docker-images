@@ -1,0 +1,15 @@
+services:
+
+    alt:
+        image: $REGISTRY/$NAME:$ALT_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - LANG
+                - TZ
+                - ALT_SOURCE
+            tags:
+                - $REGISTRY/$NAME:latest

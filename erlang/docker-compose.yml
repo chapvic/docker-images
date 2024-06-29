@@ -1,0 +1,15 @@
+services:
+
+    erlang:
+        image: $REGISTRY/$NAME:$ERLANG_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - ERLANG_TAG
+                - ERLANG_SOURCE
+                - REBAR3_SOURCE
+                - ERLANG_VERSION
+                - REBAR3_VERSION

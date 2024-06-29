@@ -1,0 +1,25 @@
+7    81    82    83    apcu
+     81    82          decimal
+7    81    82    83    event
+     81    82    83    grpc
+7    81    82    83    igbinary
+7    81    82    83    imagick
+7    81    82          lzf
+7    81    82    83    mailparse
+7    81    82    83    maxminddb
+7    81    82          mcrypt
+7    81    82    83    memcache
+7    81    82    83    memcached
+7    81    82    83    msgpack
+7                      oauth
+7    81    82          protobuf
+     81    82    83    smbclient
+7    81    82    83    ssh2
+7    81    82          timezonedb
+7    81    82    83    uploadprogress
+7    81    82          uuid
+7    81    82          vips
+     81    82          xlswriter
+7    81    82    83    yaml
+7                      zmq
+7    81    82    83    zstd

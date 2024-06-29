@@ -1,0 +1,54 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+sUSER='www'
+sUID=`getent passwd ${sUSER} | awk -F':' '{print $3}'`
+sGID=`getent passwd ${sUSER} | awk -F':' '{print $4}'`
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+fi
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting ${CL_YELLOW}[$(php-fpm -v | head -n1 | awk '{print $1" "$2}')]${CL_NONE}"
+    # Check for configuration exist and restore from defaults
+    is_empty=0
+    shopt -s nullglob dotglob
+    files=(${PHP_INI_DIR}/*)
+    (( ${#files[*]} )) || is_empty=1
+    shopt -u nullglob dotglob
+    if [ $is_empty -gt 0 ]; then
+        echo -e -n "${CL_MAGENTA}Applying default configuration... ${CL_NONE}"
+        cp -rf /etc/php-dist/* ${PHP_INI_DIR}
+    fi
+    # Fix permissions
+    echo -e "${CL_YELLOW}[ Changing user & group permissions for '${sUSER}' ${CL_GREEN}-->${CL_YELLOW} UID=${PUID} / GID=${PGID} ]${CL_NONE}"
+    chown -R ${sUSER}:${sUSER} /www /var/log /var/run ${PHP_INI_DIR} ${PHP_INI_SCAN_DIR}
+    echo -e -n "${CL_CYAN}Checking configuration... ${CL_NONE}"
+    out=$(su-exec $sUSER php-fpm -t 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        echo -e "${CL_RED}FAILED! ${CL_RED}Exiting...${CL_NONE}"
+        exit 1
+    fi
+    echo -e "${CL_GREEN}VALID${CL_NONE}"
+    # Starting php-fpm
+    echo -e "\n${CL_GREEN}All checks passed - starting PHP-FPM service...${CL_NONE}"
+    exec su-exec $sUSER php-fpm -F
+else
+    exec $@
+fi

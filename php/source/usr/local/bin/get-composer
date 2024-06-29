@@ -1,0 +1,13 @@
+#!/bin/bash
+
+pushd /tmp > /dev/null
+
+echo "Installing PHP Composer..."
+wget -O installer.php https://getcomposer.org/installer
+php installer.php --quiet || exit 1
+rm installer.php
+if [ -f composer.phar ]; then
+    mv -f composer.phar /usr/bin/composer
+fi
+
+popd > /dev/null

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+[ -n "$1" ] || {
+    echo "Enable PHP module"
+    echo "Usage: $(basename $0) <module_name>"
+    exit 1
+}
+
+[ -n "$PHP_INI_SCAN_DIR" ] || {
+    echo -e "\e[41;1m FATAL \e[0;0m\e[33;1m Variable \e[36;1mPHP_INI_SCAN_DIR\e[33;1m is not defined!\e[0;0m"
+    exit 1
+}
+
+mod=`ls -1 $PHP_INI_SCAN_DIR/*${1}.ini 2>/dev/null`
+len=$(echo "$mod" | wc -l)
+if [[ $len -ne 1 ]]; then
+    echo -e "\e[41;1m FATAL \e[0;0m\e[33;1m Module \e[36;1m$1\e[33;1m is not found!\e[0;0m"
+    exit 1
+fi
+echo -n "Disable module '$1'... "
+sed -i -r '/^[^;].*/s/^/;/' $mod 2>/dev/null
+[[ $? -eq 0 ]] && echo -e "\e[32;1mOK\e[0;0m" || echo -e "\e[31;1mFAILED\e[0;0m"

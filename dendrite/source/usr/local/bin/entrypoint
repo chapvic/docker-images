@@ -1,0 +1,54 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+sUSER='matrix'
+sUID=`getent passwd ${sUSER} | awk -F':' '{print $3}'`
+sGID=`getent passwd ${sUSER} | awk -F':' '{print $4}'`
+sFIX=0
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+    sFIX=1
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+    sFIX=1
+fi
+if [ ${sFIX} -ne 0 ]; then
+    echo -e "${CL_YELLOW}}[ Changing user & group permissions for '${sUSER}' ${CL_GREEN}-->${CL_YELLOW} UID=${PUID} / GID=${PGID} ]${CL_NONE}"
+    chown -R ${sUSER}:${sUSER} /app
+fi
+
+DENDRITE_SERVER=${DENDRITE_SERVER:-matrix}
+DENDRITE_OPTIONS=${DENDRITE_OPTIONS:-}
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting Matrix Dendrite ${CL_YELLOW}[$(dendrite -version | awk -F'+' '{print $1}')]${CL_NONE}"
+    if ! [ -f /app/etc/matrix_key.pem ]; then
+        echo -en "${CL_MAGENTA}"
+        sudo -u ${sUSER} generate-keys -server $DENDRITE_SERVER -private-key matrix_key.pem
+        echo -en "${CL_NONE}"
+    fi
+    if ! [ -f /app/etc/dendrite.yaml ]; then
+        echo -e "${CL_YELLOW}Generating server configuration...${CL_NONE}"
+        generate-config -server $DENDRITE_SERVER > dendrite.yaml
+        chown ${sUSER}:${sUSER} dendrite.yaml
+    fi
+    exec su-exec ${sUSER} dendrite ${DENDRITE_OPTIONS}
+else
+    exec $@
+fi

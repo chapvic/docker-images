@@ -1,0 +1,104 @@
+#!/bin/bash
+
+set -e
+
+WAITLOOPS=5
+SLEEPSEC=1
+
+SOCK='/run/unit.sock'
+CONFIG='/app/config'
+
+# S1 - json-file
+# $2 - uri
+function curl_put() {
+    RET=$(curl -s -w '%{http_code}' -X PUT --data-binary @$1 --unix-socket $SOCK http://localhost/$2)
+    RET_BODY=$(echo $RET | sed '$ s/...$//')
+    RET_STATUS=$(echo $RET | tail -c 4)
+    if [ "$RET_STATUS" -ne "200" ]; then
+        echo "$(date '+%Y/%m/%d %T') [info] Error: HTTP response status code is '$RET_STATUS'"
+        echo "$RET_BODY"
+        return 1
+    else
+        echo "$(date '+%Y/%m/%d %T') [info] OK: HTTP response status code is '$RET_STATUS'"
+        echo "$RET_BODY"
+    fi
+    return 0
+}
+
+if [ -z "$1" ] || [ "$1" = "unitd" ]; then
+    if find "/app/lib/" -mindepth 1 -print -quit 2>/dev/null | /bin/grep -q .; then
+        echo "$(date '+%Y/%m/%d %T') [info] /var/lib/modules/ is not empty, skipping initial configuration..."
+    else
+        echo "$(date '+%Y/%m/%d %T') [info] Launching Unit daemon to perform initial configuration..."
+        unitd
+
+        for i in $(seq $WAITLOOPS); do
+            if [ ! -S $SOCK ]; then
+                echo "$(date '+%Y/%m/%d %T') [info] Waiting for control socket to be created..."
+                sleep $SLEEPSEC
+            else
+                break
+            fi
+        done
+        # even when the control socket exists, it does not mean unit has finished initialisation
+        # this curl call will get a reply once unit is fully launched
+        curl -s -X GET --unix-socket $SOCK http://localhost/ &>/dev/null
+
+        if find "$CONFIG/" -mindepth 1 -print -quit 2>/dev/null | grep -q .; then
+            echo "$(date '+%Y/%m/%d %T') [info] $CONFIG is not empty, applying initial configuration..."
+
+            echo "$(date '+%Y/%m/%d %T') [info] Looking for certificate bundles in /docker-entrypoint.d/..."
+            for f in $(find $CONFIG/ -type f -name "*.pem"); do
+                echo "$(date '+%Y/%m/%d %T') [info] Uploading certificates bundle: $f"
+                curl_put $f "certificates/$(basename $f .pem)"
+            done
+
+            echo "$(date '+%Y/%m/%d %T') [info] Looking for JavaScript modules in $CONFIG/..."
+            for f in $(find $CONFIG/ -type f -name "*.js"); do
+                echo "$(date '+%Y/%m/%d %T') [info] Uploading JavaScript module: $f"
+                curl_put $f "js_modules/$(basename $f .js)"
+            done
+
+            echo "$(date '+%Y/%m/%d %T') [info] Looking for configuration snippets in $CONFIG/..."
+            for f in $(find $CONFIG/ -type f -name "*.json"); do
+                echo "$(date '+%Y/%m/%d %T') [info] Applying configuration $f";
+                curl_put $f "config"
+            done
+
+            echo "$(date '+%Y/%m/%d %T') [info] Looking for shell scripts in $CONFIG/..."
+            for f in $(find $CONFIG/ -type f -name "*.sh"); do
+                echo "$(date '+%Y/%m/%d %T') [info] Launching $f";
+                "$f"
+            done
+
+            # warn on filetypes we don't know what to do with
+            for f in $(find $CONFIG/ -type f -not -name "*.sh" -not -name "*.json" -not -name "*.pem" -not -name "*.js"); do
+                echo "$(date '+%Y/%m/%d %T') [info] Ignoring $f";
+            done
+        else
+            echo "$(date '+%Y/%m/%d %T') [info] $CONFIG/ is empty, creating 'welcome' configuration..."
+            welcome
+        fi
+
+        echo "$(date '+%Y/%m/%d %T') [info] Stopping Unit daemon after initial configuration..."
+        kill -TERM $(pidof unitd)
+
+        for i in $(seq $WAITLOOPS); do
+            if [ -S $SOCK ]; then
+                echo "$(date '+%Y/%m/%d %T') [info] Waiting for control socket to be removed..."
+                sleep $SLEEPSEC
+            else
+                break
+            fi
+        done
+
+        if [ -S $SOCK ]; then
+            kill -KILL $(pidof unitd)
+            rm -f $SOCK
+        fi
+        echo "$(date '+%Y/%m/%d %T') [info] Unit initial configuration complete; ready for start up..."
+    fi
+    exec unitd --no-daemon
+else
+    exec "$@"
+fi

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+. /usr/local/bin/pg_func.sh || exit 1
+
+if [[ "$UID" == 0 ]]; then
+    mkdir -p $PGDATA
+    chown -R postgres:root $PGDATA
+    chmod -R 700 $PGDATA
+    su-exec postgres $0
+else
+    if [[ -z "$(ls -A $PGDATA)" ]]; then
+        echo -e "${CL_YELLOW}----- INITIALIZING POSTGRES -----${CL_NONE}"
+        initdb
+        _fix_pg_config
+        echo "host all all all scram-sha-256" >> $PGDATA/pg_hba.conf
+        pg_ctl -D $PGDATA start
+        while [[ $(ss -lnt | grep ":5432" | wc -l) -eq 0 ]]; do sleep 1s; done;
+        echo -e "${CL_YELLOW}----- SETTING UP POSTGRES -----${CL_NONE}"
+        username=${POSTGRES_USER:-postgres}
+        password=${POSTGRES_PASSWORD:-postgres}
+        echo -e "${CL_CYAN}"
+        if [[ "$username" == "postgres" ]]; then
+            echo "ALTER ROLE $username WITH PASSWORD '$password';" | psql -U postgres
+        else
+            echo "CREATE ROLE $username WITH SUPERUSER LOGIN PASSWORD '$password';" | psql -U postgres
+        fi
+        if [[ -n "$POSTGRES_DB" ]]; then
+            echo "CREATE DATABASE $POSTGRES_DB;" | psql -U postgres
+        fi
+        echo -e "${CL_YELLOW}----- SETTING UP COMPLETE -----${CL_NONE}"
+        pg_ctl stop
+        while [[ $(ss -lnt | grep ":5432" | wc -l) -gt 0 ]]; do sleep 1s; done;
+        echo -e "${CL_GREEN}----- INITIALIZATION COMPLETE -----${CL_NONE}"
+    fi
+fi

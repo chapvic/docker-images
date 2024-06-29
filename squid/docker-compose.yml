@@ -1,0 +1,26 @@
+services:
+
+    squid:
+        image: $REGISTRY/$NAME:$SQUID_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - SQUID_VERSION
+                - SQUID_SOURCE
+                - SQUID_TAG
+                - SQUID_ROOT
+                - SQUID_CONFDIR
+                - SQUID_CONFDIR_DEFAULT
+                - SQUID_LOGDIR
+                - SQUID_OPT_WITH
+                - SQUID_OPT_ENABLE
+                - SQUID_OPT_DISABLE
+                - SQUID_BUILD_INFO
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:$VERSION
+                - $REGISTRY/$NAME:latest

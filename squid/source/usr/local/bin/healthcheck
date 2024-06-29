@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Is non-docker environment?
+if [ ! -f /.dockerenv ]; then
+    exit 1
+fi
+
+# Checking for 'squid.conf' exists
+[ -f "$SQUID_CONFDIR/squid.conf" ] || exit 1
+
+if [ -z "$SQUID_HTTP_PORT" ]; then
+    # Read 'http_port' value from squid.conf
+    SQUID_HTTP_PORT=`sed -r -n 's/^http_port (.*)$/\1/p' "$SQUID_CONFDIR/squid.conf" 2>/dev/null`
+fi
+
+# Normalize variable
+SQUID_HTTP_PORT=${SQUID_HTTP_PORT:-3128}
+
+# Check if it's numeric value
+num_regex='^[0-9]+$'
+if ! [[ "$SQUID_HTTP_PORT" =~ $num_regex ]]; then
+    # Not a numeric value, set to default -> 3128
+    SQUID_HTTP_PORT=3128
+fi
+
+# Healthchecking
+out=$(netstat -lnt | egrep "\:${SQUID_HTTP_PORT}\s")
+if [ -z "${out}" ]; then
+    exit 1
+fi

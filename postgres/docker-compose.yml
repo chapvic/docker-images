@@ -1,0 +1,22 @@
+services:
+
+    postgres:
+        image: $REGISTRY/$NAME:$POSTGRES_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - LLVM_VERSION
+                - CLANG_VERSION
+                - POSTGRES_SOURCE
+                - POSTGRES_VERSION
+                - POSTGRES_TAG
+                - PG_VECTOR_SOURCE
+                - PG_VECTOR_VERSION
+            tags:
+                - $REGISTRY/$NAME:$MAJOR_VERSION
+                - $REGISTRY/$NAME:latest

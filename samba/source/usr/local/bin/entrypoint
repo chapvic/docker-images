@@ -1,0 +1,17 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting Samba ${CL_YELLOW}[$(smbd -V)]${CL_NONE}"
+    smbd -D
+    nmbd -D
+    exec infinite
+else
+    exec $@
+fi

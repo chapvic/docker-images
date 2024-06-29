@@ -1,0 +1,54 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Build PowerShell'
+        silent: true
+        vars:
+            POWERSHELL_VERSION:
+                sh: git ls-remote --tags {{.POWERSHELL_URL}} | sed 's/.*\///; s/\^{}//' | grep -E '^v[0-9\.]+$' | sort --version-sort | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo -e '\e[44;1m[ Building PowerShell ]\e[0;0m'
+            - sed -i '/POWERSHELL_VERSION=/d' .env
+            - echo "POWERSHELL_VERSION={{.POWERSHELL_VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/POWERSHELL_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    sync:
+        desc: "Synchronize with DockerHub"
+        silent: true
+        vars:
+            POWERSHELL_VERSION:
+                sh: git ls-remote --tags {{.POWERSHELL_URL}} | sed 's/.*\///; s/\^{}//' | grep -E '^v[0-9\.]+$' | sort --version-sort | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.POWERSHELL_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.POWERSHELL_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.POWERSHELL_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.POWERSHELL_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            POWERSHELL_VERSION:
+                sh: git ls-remote --tags {{.POWERSHELL_URL}} | sed 's/.*\///; s/\^{}//' | grep -E '^v[0-9\.]+$' | sort --version-sort | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo {{.POWERSHELL_VERSION}}
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

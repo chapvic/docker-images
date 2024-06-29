@@ -1,0 +1,21 @@
+#!/bin/bash
+
+. /usr/local/bin/pg_func.sh || exit 1
+
+if [ -z "$*" ]; then
+    if [[ "$UID" == 0 ]]; then
+        mkdir -p $PGDATA
+        chown -R postgres:root $PGDATA
+        chmod -R 700 $PGDATA
+        exec su-exec postgres entrypoint
+    else
+        if [[ -z "$(ls -A $PGDATA)" ]]; then
+            init-db
+        else
+            _fix_pg_config
+        fi
+        exec postgres -T ${POSTGRES_OPTIONS}
+    fi
+else
+    exec $@
+fi

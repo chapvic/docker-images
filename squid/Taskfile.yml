@@ -1,0 +1,88 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-squid:
+        silent: true
+        internal: true
+        vars:
+            SQUID_VERSION:
+                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sed -re 's,'$prefix'(.*),\1,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
+            SQUID_TAG:
+                sh: echo SQUID_{{.SQUID_VERSION}} | tr '.' '_'
+        cmds:
+            - echo "- {{.TITLE}}"
+            - sed -i '/VERSION=/d; /TAG=/d' .env
+            - echo -e "SQUID_VERSION={{.SQUID_VERSION}}\nVERSION={{.VERSION}}\nSQUID_TAG={{.SQUID_TAG}}" >> .env
+            - docker compose build --push
+            - sed -i '/VERSION=/d; /TAG=/d' .env
+            - echo "[ Done ]"
+
+    build:
+        desc: 'Build Squid Cache'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building Squid Cache ]\e[0;0m'
+            - for: { var: SQUID_VERSION_LIST }
+              task: build-squid
+              vars:
+                TITLE: 'Squid {{.ITEM}}'
+                VERSION: '{{.ITEM}}'
+
+    sync-squid:
+        silent: true
+        internal: true
+        vars:
+            SQUID_VERSION:
+                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sed -re 's,'$prefix'(.*),\1,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
+        cmds:
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.SQUID_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.SQUID_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.SQUID_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.SQUID_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    sync:
+        desc: 'Synchronize with DockerHub'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - for: { var: SQUID_VERSION_LIST }
+              task: sync-squid
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    checkout-squid:
+        silent: true
+        internal: true
+        vars:
+            SQUID_VERSION:
+                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sed -re 's,'$prefix'(.*),\1,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
+        cmds:
+            - echo -n "{{.SQUID_VERSION}} "
+
+    checkout:
+        silent: true
+        cmds:
+            - for: { var: SQUID_VERSION_LIST }
+              task: checkout-squid
+              vars:
+                TITLE: 'Squid {{.ITEM}}'
+                VERSION: '{{.ITEM}}'
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

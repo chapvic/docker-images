@@ -1,0 +1,14 @@
+services:
+
+    golang:
+        image: $REGISTRY/$NAME:$VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - GOLANG_SOURCE
+                - GOLANG_VERSION
+            tags:
+                - $REGISTRY/$NAME:latest

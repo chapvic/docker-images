@@ -1,0 +1,103 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+_log() {
+    if [ -z "${APACHE_STARTUP_QUIET_LOGS:-}" ]; then
+        echo -e "$@"
+    fi
+}
+
+_nlog() {
+    if [ -z "${APACHE_STARTUP_QUIET_LOGS:-}" ]; then
+        echo -en "$@"
+    fi
+}
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+STARTUP_DIR="/app/var/startup/"
+
+APACHE_TIMEOUT=${APACHE_TIMEOUT:-10}
+APACHE_PORT=${APACHE_PORT:-80}
+
+sUSER='apache'
+sUID=$(getent passwd ${sUSER} | awk -F: '{print $3}')
+sGID=$(getent passwd ${sUSER} | awk -F: '{print $4}')
+sHOME=$(getent passwd apache | awk -F: '{print $6}')
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    _log "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+fi
+
+export APACHE_WEB_DIR=${APACHE_WEB_DIR:-$sHOME}
+export APACHE_WEB_PORT=${APACHE_WEB_PORT:-80}
+
+# Fix permissions
+
+_log "${CL_YELLOW}[ Changing user & group permissions for '${sUSER}' ${CL_GREEN}-->${CL_YELLOW} UID=${PUID} / GID=${PGID} ]${CL_NONE}"
+mkdir -p /etc/apache2 /var/log/apache2 /run/apache2 "${sHOME}" "$APACHE_WEB_DIR"
+chown -R ${sUSER}:${sUSER} /etc/apache2 /var/log/apache2 /run/apache2 "${sHOME}" "$APACHE_WEB_DIR"
+
+# Entrypoint
+
+if [ -z "$1" ]; then
+    _log "${CL_GREEN}Starting ${CL_YELLOW}[$(httpd -v | head -n1 | awk '{print $3}')]${CL_NONE}"
+
+    # Checking Apache configuration
+    _log "${CL_CYAN}Checking Apache configuration...${CL_NONE}"
+    # Check for configuration exist and restore from defaults
+    is_empty=0
+    shopt -s nullglob dotglob
+    files=(/etc/apache2/*)
+    (( ${#files[*]} )) || is_empty=1
+    shopt -u nullglob dotglob
+    if [ $is_empty -gt 0 ]; then
+        cp -rf /etc/apache2.dist/* /etc/apache2
+    fi
+    # Testing configuration
+    httpd -t 2>/dev/null || {
+        _log "${CL_RED}Configuration failed!${CL_NONE}"
+        _log "${CL_YELLOW}Exiting...${CL_NONE}"
+        exit 1
+    }
+    _log "${CL_GREEN}Configuration OK!${CL_NONE}"
+    # Starting Apache in daemon mode
+    httpd -k start
+    timeout=$APACHE_TIMEOUT
+    _nlog "${CL_CYAN}Waiting for Apache ready ${CL_WHITE}[Port: ${APACHE_PORT}]${CL_CYAN}... ${CL_NONE}"
+    while true; do
+        if [ $(netstat -nat | grep ":${APACHE_PORT}" | wc -l) -gt 0 ]; then
+            break
+        fi
+        timeout=$((timeout-1))
+        if [ $timeout -eq 0 ]; then
+            _log "${CL_RED}Timed out!\nError starting Apache!${CL_NONE}"
+            exit 1
+        fi
+        sleep 1s;
+    done;
+    _log "${CL_GREEN}Done${CL_NONE}"
+    _log "${CL_MAGENTA}- Apache user    ${CL_WHITE}: ${sUSER} ${CL_CYAN}[ ${PUID} / ${PGID} ]${CL_NONE}"
+    _log "${CL_MAGENTA}- Home directory ${CL_WHITE}: ${sHOME}${CL_NONE}"
+    _log "${CL_MAGENTA}- Web directory  ${CL_WHITE}: ${APACHE_WEB_DIR}${CL_NONE}"
+    _log "${CL_GREEN}Apache started${CL_NONE}"
+    exec infinite httpd -k stop
+else
+    exec "$@"
+fi

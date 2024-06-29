@@ -1,0 +1,110 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+STARTUP_DIR="/app/var/startup/"
+
+NGINX_TIMEOUT=${NGINX_TIMEOUT:-10}
+NGINX_PORT=${NGINX_PORT:-80}
+
+_log() {
+    if [ -z "${NGINX_STARTUP_QUIET_LOGS:-}" ]; then
+        echo -e "$@"
+    fi
+}
+
+_nlog() {
+    if [ -z "${NGINX_STARTUP_QUIET_LOGS:-}" ]; then
+        echo -en "$@"
+    fi
+}
+
+if [ -z "$1" ] || [ "$1" = "nginx" ] || [ "$1" = "nginx-debug" ]; then
+    _log "${CL_GREEN}Starting Nginx ${CL_YELLOW}[${NGINX_VERSION}]${CL_NONE}"
+
+    if /usr/bin/find "${STARTUP_DIR}" -mindepth 1 -maxdepth 1 -type f -print -quit 2>/dev/null | read v; then
+        _log "${CL_GREEN}- ${STARTUP_DIR}${CL_WHITE} is not empty, will attempt to perform configuration${CL_NONE}"
+        _log "${CL_MAGENTA}- Looking for shell scripts in ${CL_CYAN}${STARTUP}${CL_NONE}"
+        find "${STARTUP}" -follow -type f -print | sort -V | while read -r f; do
+            case "${f}" in
+                *.envsh)
+                    if [ -x "${f}" ]; then
+                        _log "${CL_CYAN}- Sourcing ${f}${CL_NONE}";
+                        . "${f}"
+                    else
+                        # warn on shell scripts without exec bit
+                        _log "${CL_YELLOW}- Ignoring ${f}, not executable${CL_NONE}"
+                    fi
+                    ;;
+                *.sh)
+                    if [ -x "${f}" ]; then
+                        _log "${CL_CYAN}- Launching ${f}${CL_NONE}";
+                        "${f}"
+                    else
+                        # warn on shell scripts without exec bit
+                        _log "${CL_YELLOW}- Ignoring ${f}, not executable${CL_NONE}"
+                    fi
+                    ;;
+                *) _log "${CL_YELLOW}- Ignoring ${f}${CL_NONE}"
+                    ;;
+            esac
+        done
+
+        _log "${CL_GREEN}Configuration complete!${CL_NONE}"
+    else
+        _log "${CL_CYAN}No files found in ${CL_WHITE}${STARTUP_DIR}${CL_YELLOW}, skipping configuration${CL_NONE}"
+    fi
+
+    if [ -n "$1" ]; then
+        exec "$@"
+    else
+        # Checking nginx configuration
+        _log "${CL_CYAN}Checking Nginx configuration...${CL_NONE}"
+        # Check for configuration exist and restore from defaults
+        is_empty=0
+        shopt -s nullglob dotglob
+        files=(/app/etc/*)
+        (( ${#files[*]} )) || is_empty=1
+        shopt -u nullglob dotglob
+        if [ $is_empty -gt 0 ]; then
+            for f in /app/var/dist/*.default; do
+                cp -- $f /app/etc/$(basename ${f%.default})
+            done
+        fi
+        # Fix permissions
+        chown -R nginx:nginx /app/etc /app/var
+        # Testing configuration
+        nginx -t || {
+            _log "${CL_RED}Configuration failed!${CL_NONE}"
+            _log "${CL_YELLOW}Exiting...${CL_NONE}"
+            exit 1
+        }
+        _log "${CL_GREEN}Configuration OK!${CL_NONE}"
+        # Starting nginx in daemon mode daemon
+        nginx
+        timeout=$NGINX_TIMEOUT
+        _nlog "${CL_CYAN}Waiting for Nginx ready ${CL_WHITE}[Port: ${NGINX_PORT}]${CL_CYAN}... ${CL_NONE}"
+        while true; do
+            if [ $(netstat -nat | grep ":${NGINX_PORT}" | wc -l) -gt 0 ]; then
+                break
+            fi
+            timeout=$((timeout-1))
+            if [ $timeout -eq 0 ]; then
+                _log "${CL_RED}Timed out!\nError starting Nginx!${CL_NONE}"
+                exit 1
+            fi
+            sleep 1s;
+        done;
+        _log "${CL_GREEN}Done\nNginx started${CL_NONE}"
+        exec infinite stop_nginx
+    fi
+else
+    exec "$@"
+fi

@@ -1,0 +1,19 @@
+[package]
+name = "appname"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+opt-level = 0
+debug = true
+panic = 'unwind'
+
+[profile.release]
+opt-level = 1
+debug = false
+overflow-checks = false
+debug-assertions = false
+strip = true
+lto = true
+rpath = false
+panic = 'abort'

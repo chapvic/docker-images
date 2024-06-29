@@ -1,0 +1,12 @@
+#!/bin/bash
+
+PHP_ADDR=${1:-0.0.0.0}
+PHP_PORT=${2:-8080}
+PHP_WEBROOT=${PHP_WEBROOT:-/www}
+
+if [ -d "${PHP_WEBROOT}" ]; then
+    php -S ${PHP_ADDR}:${PHP_PORT} -t "${PHP_WEBROOT}"
+else
+    echo -e "\e[41;1m ERROR \e[0;0m\e[33;1m Directory \e[36;1m${PHP_WEBROOT}\e[33;1m is not exist!\e[0;0m"
+    exit 1
+fi

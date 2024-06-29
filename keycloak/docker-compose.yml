@@ -1,0 +1,17 @@
+services:
+
+    caddy:
+        image: $REGISTRY/$NAME:$KEYCLOAK_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - KEYCLOAK_SOURCE
+                - KEYCLOAK_VERSION
+                - JDK_VERSION
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest

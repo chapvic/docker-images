@@ -1,0 +1,92 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-alpine:
+        silent: true
+        internal: true
+        cmds:
+            - |
+                mkdir -p source
+                wget -q --show-progress -O "source/release-{{.VERSION}}.yaml" "{{.MIRROR_URL}}/v{{.VERSION}}/releases/{{.ALPINE_ARCH}}/latest-releases.yaml" 2>/dev/null
+                version=`yq -r '.[] | select(.title=="Mini root filesystem") | .version' "source/release-{{.VERSION}}.yaml" 2>/dev/null`
+                sed -i '/VERSION=/d' .env
+                echo -e "VERSION={{.VERSION}}\nALPINE_VERSION=$version" >> .env
+                filename=`yq -r '.[] | select(.title=="Mini root filesystem") | .file' "source/release-{{.VERSION}}.yaml" 2>/dev/null`
+                wget -q --show-progress -O "source/$filename" "{{.MIRROR_URL}}/v{{.VERSION}}/releases/{{.ALPINE_ARCH}}/$filename"
+                docker compose build --push --build-arg ALPINE_SOURCE=source/alpine-minirootfs-${version}-{{.ALPINE_ARCH}}.tar.gz
+
+    build:
+        desc: 'Build Alpine Linux'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building Alpine Linux ]\e[0;0m'
+            - for: { var: ALPINE_VERSION_LIST }
+              task: build-alpine
+              vars:
+                TITLE: 'Alpine Linux {{.ITEM}}'
+                VERSION: '{{.ITEM}}'
+
+    sync-alpine:
+        silent: true
+        internal: true
+        vars:
+            ALPINE_VERSION:
+                sh: yq -r '.[] | select(.title=="Mini root filesystem") | .version' "source/release-{{.VERSION}}.yaml" 2>/dev/null
+        cmds:
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}}-slim => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}-slim"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}}-slim docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}-slim
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:slim => {{.SYNC_TARGET}}/{{.NAME}}:slim"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:slim docker://{{.SYNC_TARGET}}/{{.NAME}}:slim
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-dev:{{.ALPINE_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}-dev:{{.ALPINE_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-dev:{{.ALPINE_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}-dev:{{.ALPINE_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-dev:latest => {{.SYNC_TARGET}}/{{.NAME}}-dev:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-dev:latest docker://{{.SYNC_TARGET}}/{{.NAME}}-dev:latest
+            - echo "[ Done ]"
+
+    sync:
+        desc: 'Synchronize with DockerHub'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - for: { var: ALPINE_VERSION_LIST }
+              task: sync-alpine
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    checkout-alpine:
+        silent: true
+        internal: true
+        cmds:
+            - |
+                mkdir -p source
+                wget -q -O "source/release-{{.VERSION}}.yaml" "{{.MIRROR_URL}}/v{{.VERSION}}/releases/{{.ALPINE_ARCH}}/latest-releases.yaml" 2>/dev/null
+                version=`yq -r '.[] | select(.title=="Mini root filesystem") | .version' "source/release-{{.VERSION}}.yaml" 2>/dev/null`
+                echo -n "$version "
+
+    checkout:
+        silent: true
+        cmds:
+            - for: { var: ALPINE_VERSION_LIST }
+              task: checkout-alpine
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

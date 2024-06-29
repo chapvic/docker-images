@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -eo pipefail
+
+out=`netstat -lnt | grep ":${PORT:-8008} "`
+[ -n "$out" ] ||  exit 1

@@ -1,0 +1,17 @@
+services:
+
+    runner:
+        image: $REGISTRY/$NAME:$RUNNER_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - RUNNER_DATA
+                - RUNNER_SOURCE
+                - RUNNER_VERSION
+            tags:
+                - $REGISTRY/$NAME:latest

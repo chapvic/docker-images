@@ -1,0 +1,17 @@
+services:
+
+    gitea:
+        image: $REGISTRY/$NAME:$GITEA_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - GITEA_VERSION
+                - GITEA_SOURCE
+                - CGO_EXTRA_FLAGS
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest

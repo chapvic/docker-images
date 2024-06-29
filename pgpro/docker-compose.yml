@@ -1,0 +1,20 @@
+services:
+
+    pgpro:
+        image: $REGISTRY/$NAME:$PGPRO_VERSION-$TARGET
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: $NAME-$TARGET
+            args:
+                - REGISTRY
+                - LANG
+                - TZ
+                - PGPRO_REPO_URL
+                - PGPRO_VERSION
+                - PGPRO_RELEASE
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest-$TARGET

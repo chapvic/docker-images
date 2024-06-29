@@ -1,0 +1,4 @@
+#!/bin/bash
+
+out=`netstat -lnt | grep ":${APACHE_WEB_PORT:-80} "`
+[ -n "$out" ] ||  exit 1

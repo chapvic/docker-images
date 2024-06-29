@@ -1,0 +1,18 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+set -e
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    echo -e ${CL_GREEN}"Starting Element Web ${CL_YELLOW}[${ELEMENT_VERSION}]${CL_NONE}"
+    echo -e "${CL_GREEN}Webserver: ${CL_YELLOW}[$(nginx -v 2>&1 | awk '{print $3}')]${CL_NONE}"
+    exec nginx -g "daemon off;"
+else
+    exec "$@"
+fi

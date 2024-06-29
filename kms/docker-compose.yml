@@ -1,0 +1,11 @@
+services:
+
+    kms:
+        image: $REGISTRY/$NAME:latest
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - KMS_SOURCE

@@ -1,0 +1,13 @@
+services:
+
+    ubuntu:
+        image: $REGISTRY/$NAME:$UBUNTU_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - UBUNTU_SOURCE
+            tags:
+                - $REGISTRY/$NAME:$VERSION
+                - $REGISTRY/$NAME:latest

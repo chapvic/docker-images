@@ -1,0 +1,18 @@
+services:
+
+    mariadb:
+        image: $REGISTRY/$NAME:$MARIADB_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - MARIADB_VERSION
+                - MARIADB_SOURCE
+                - MARIADB_TAG
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:$VERSION
+                - $REGISTRY/$NAME:latest

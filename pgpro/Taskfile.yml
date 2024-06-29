@@ -1,0 +1,85 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-target:
+        silent: true
+        internal: true
+        cmds:
+            - echo "- {{.TITLE}}"
+            - sed -i '/PGPRO_VERSION=/d; /TARGET=/d' .env
+            - echo -e "PGPRO_VERSION={{.VERSION}}\nTARGET={{.TARGET}}" >> .env
+            - docker compose build --push
+            - sed -i '/PGPRO_VERSION=/d; /TARGET=/d' .env
+            - echo "[ Done ]"
+
+    build-pgpro:
+        silent: true
+        internal: true
+        cmds:
+            - for: { var: PGPRO_TARGETS }
+              task: build-target
+              vars:
+                TITLE: 'PostgresPro {{.VERSION}} [{{.ITEM}}]'
+                VERSION: '{{.VERSION}}'
+                TARGET: '{{.ITEM}}'
+
+    build:
+        desc: 'Build Postgres Pro'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building PostgresPro ]\e[0;0m'
+            - for: { var: PGPRO_VERSION_LIST }
+              task: build-pgpro
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    sync-target:
+        silent: true
+        internal: true
+        cmds:
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest-{{.TARGET}} => {{.SYNC_TARGET}}/{{.NAME}}:latest-{{.TARGET}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest-{{.TARGET}} docker://{{.SYNC_TARGET}}/{{.NAME}}:latest-{{.TARGET}}
+            - echo "[ Done ]"
+
+    sync-pgpro:
+        silent: true
+        internal: true
+        cmds:
+            - for: { var: PGPRO_TARGETS }
+              task: sync-target
+              vars:
+                VERSION: '{{.VERSION}}'
+                TARGET: '{{.ITEM}}'
+
+    sync:
+        desc: 'Synchronize with DockerHub'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - for: { var: PGPRO_VERSION_LIST }
+              task: sync-pgpro
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    checkout:
+        silent: true
+        cmds:
+            - echo "{{.PGPRO_VERSION_LIST}}"
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

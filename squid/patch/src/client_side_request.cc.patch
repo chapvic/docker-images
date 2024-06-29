@@ -1,0 +1,31 @@
+*** ./src/client_side_request.cc	2024-02-16 16:14:59.773985243 +0300
+--- src/client_side_request.cc	2024-02-16 16:14:59.773985243 +0300
+***************
+*** 493,507 ****
+      // note the DNS details for the transaction stats.
+      http->request->recordLookup(dns);
+  
+!     // Is the NAT destination IP in DNS?
+!     if (ia && ia->have(clientConn->local)) {
+!         debugs(85, 3, "validate IP " << clientConn->local << " possible from Host:");
+!         http->request->flags.hostVerified = true;
+!         http->doCallouts();
+!         return;
+!     }
+!     debugs(85, 3, "FAIL: validate IP " << clientConn->local << " possible from Host:");
+!     hostHeaderVerifyFailed("local IP", "any domain IP");
+  }
+  
+  void
+--- 493,503 ----
+      // note the DNS details for the transaction stats.
+      http->request->recordLookup(dns);
+  
+!     // REMOVED  --  Is the NAT destination IP in DNS?
+!     debugs(85, 3, "validate IP " << clientConn->local << " possible from Host:");
+!     http->request->flags.hostVerified = true;
+!     http->doCallouts();
+!     return;
+  }
+  
+  void

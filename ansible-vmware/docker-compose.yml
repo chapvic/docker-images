@@ -1,0 +1,13 @@
+services:
+
+    ansible-vmware:
+        image: $REGISTRY/$NAME:$VMWARE_PLUGIN_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - OS_VERSION
+                - ANSIBLE_VERSION
+                - VMWARE_PLUGIN_VERSION

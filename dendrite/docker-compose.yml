@@ -1,0 +1,16 @@
+services:
+
+    dendrite:
+        image: $REGISTRY/$NAME:$DENDRITE_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - DENDRITE_SOURCE
+                - DENDRITE_VERSION
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest

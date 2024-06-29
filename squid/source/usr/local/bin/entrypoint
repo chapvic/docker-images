@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# Is non-docker environment?
+if [ ! -f /.dockerenv ]; then
+    echo "FATAL: Not a docker container!"
+    exit 1
+fi
+
+# Is unprivileged user? (non-root)
+if [[ $UID -ne 0 ]]; then
+    echo "FATAL: You must be a root [UID=0]"
+    exit 1
+fi
+
+if ! [ -f /etc/squid.env ]; then
+    echo "FATAL: No Squid environment found - /etc/squid.env"
+    exit 1
+fi
+
+source /etc/squid.env
+
+LOGFILE="$SQUID_LOGDIR/cache.log"
+
+log() {
+    echo "$(date '+%Y/%m/%d %H:%M:%S')| $1" | tee -a $LOGFILE
+}
+
+if [ -z "$1" ] || [ "$1" == "squid" ]; then
+    # Checking configuration
+    log "Checking configuration..."
+
+    # Setting up log level (default = 1)
+    SQUID_DEBUG_LEVEL=${SQUID_DEBUG_LEVEL:-1}
+
+    # Checking for matching UID/GID
+    squid_system_uid=`getent passwd squid | awk -F: '{print $3}'`
+    squid_system_gid=`getent passwd squid | awk -F: '{print $4}'`
+    if [ -z "$squid_system_uid" ] || \
+       [ -z "$squid_system_gid" ]; then
+        log "FATAL: System UID/GID [${squid_system_uid}/${squid_system_gid}] does not match squid user!"
+        exit 1
+    fi
+
+    # Change system UID/GID for squid user if needed
+    if [ -n "$PGID" ] && [[ $PGID -ne $squid_system_gid ]]; then
+        log "Replace squid user id with $PUID"
+        groupmod -g $PGID squid
+    fi
+    if [ -n "$PUID" ] && [[ $PUID -ne $squid_system_uid ]]; then
+        log "Replace squid group id with $PGID"
+        usermod -u $PUID squid
+    fi
+
+    if [ -z "$SQUID_CONFDIR" ] || \
+       [ -z "$SQUID_CONFDIR_DEFAULT" ]; then
+        log "FATAL: No configuration variable(s) defined!"
+        log "       \$SQUID_CONFDIR         = $SQUID_CONFDIR"
+        log "       \$SQUID_CONFDIR_DEFAULT = $SQUID_CONFDIR_DEFAULT"
+        exit 1
+    else
+        log "Squid root directory        : $SQUID_ROOT"
+        log "Squid configuration         : $SQUID_CONFDIR"
+        log "Squid default configuration : $SQUID_CONFDIR_DEFAULT"
+        log "Logfile                     : $LOGFILE"
+        log "Debug level                 : $SQUID_DEBUG_LEVEL"
+        log "Squid user/group            : UID=$PUID / GID=$PGID"
+    fi
+
+    # Create logfile
+    touch -a $LOGFILE
+    chmod 640 $LOGFILE
+    chown squid:squid $LOGFILE
+
+    # Check for configuration exist and restore from defaults if missing
+    if [ -d "$SQUID_CONFDIR_DEFAULT" ]; then
+        log "Checking existing configuration:"
+        for fn in $(ls -1 $SQUID_CONFDIR_DEFAULT/*.default); do
+            conf=$(basename ${fn/.default/})
+            if ! [ -f "$SQUID_CONFDIR/$conf" ]; then
+                cp -f "$fn" "$SQUID_CONFDIR/$conf"
+                log "- $conf [missing] - restored from $fn"
+            else
+                log "- $conf [present]"
+            fi
+        done
+    fi
+
+    # Check for 'squid.conf' is present
+    if ! [ -f "$SQUID_CONFDIR/squid.conf" ]; then
+        log "FATAL: File 'squid.conf' is not exist!"
+        log "--- ABORTING ---"
+        exit 1
+    fi
+
+    # If SQUID_HTTP_PORT is defined, then replace 'http_port' configuration by this value
+    num_regex='^[0-9]+$'
+    if [ -n "$SQUID_HTTP_PORT" ]; then
+        if ! [[ "$SQUID_HTTP_PORT" =~ $num_regex ]]; then
+            # Not a numeric value, set to default -> 3128
+            log "WARNING: Value of the 'SQUID_HTTP_PORT' is not a number -> $SQUID_HTTP_PORT"
+            log "Using default value - 3128"
+            SQUID_HTTP_PORT=3128
+        fi
+        # Replace 'http_port' value in 'squid.conf'
+        log "HTTP port = $SQUID_HTTP_PORT"
+        sed -i -r 's/(^http_port).*/\1 '$SQUID_HTTP_PORT'/' "$SQUID_CONFDIR/squid.conf"
+    else
+        config_http_port=`sed -r -n 's/^http_port (.*)$/\1/p' "$SQUID_CONFDIR/squid.conf"`
+        if [ -n "$config_http_port" ]; then
+            log "No SQUID_HTTP_PORT defined"
+            log "HTTP port [squid.conf] = $config_http_port"
+        fi
+    fi
+
+    # Fix permissions for squid user
+    log "Fix permissions for squid user"
+    chown -R squid:squid $SQUID_ROOT
+
+    # Starting Squid in foreground mode
+    exec squid --foreground -f ${SQUID_CONFDIR}/squid.conf -d${SQUID_DEBUG_LEVEL}
+else
+    exec "$@"
+fi

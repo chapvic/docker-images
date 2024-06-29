@@ -1,0 +1,58 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Build Unit Web Server'
+        silent: true
+        vars:
+            UNIT_VERSION:
+                sh: git ls-remote --tags {{.UNIT_SOURCE}} 'refs/tags/*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sort --version-sort | tail -n1
+            NXT_VERSION:
+                sh: cat $(basename $(curl -s -L {{.UNIT_SOURCE}}/archive/refs/tags/{{.UNIT_VERSION}}.tar.gz | tar xzv unit-{{.UNIT_VERSION}}/version --strip-components 1)) | grep NXT_VERSION | awk -F'=' '{print $2}' && rm -f version
+        cmds:
+            - echo -e '\e[44;1m[ Building Unit Web Server ]\e[0;0m'
+            - sed -i '/UNIT_VERSION=/d; /NXT_VERSION=/d' .env
+            - echo -e "UNIT_VERSION={{.UNIT_VERSION}}\nNXT_VERSION={{.NXT_VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/UNIT_VERSION=/d; /NXT_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    sync:
+        desc: "Synchronize with DockerHub"
+        silent: true
+        vars:
+            UNIT_VERSION:
+                sh: git ls-remote --tags {{.UNIT_SOURCE}} 'refs/tags/*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sort --version-sort | tail -n1
+            NXT_VERSION:
+                sh: cat $(basename $(curl -s -L {{.UNIT_SOURCE}}/archive/refs/tags/{{.UNIT_VERSION}}.tar.gz | tar xzv unit-{{.UNIT_VERSION}}/version --strip-components 1)) | grep NXT_VERSION | awk -F'=' '{print $2}' && rm -f version
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.NXT_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.NXT_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.NXT_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.NXT_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            UNIT_VERSION:
+                sh: git ls-remote --tags {{.UNIT_SOURCE}} 'refs/tags/*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sort --version-sort | tail -n1
+        cmds:
+            - echo "{{.UNIT_VERSION}}"
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

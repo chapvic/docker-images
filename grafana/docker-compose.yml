@@ -1,0 +1,17 @@
+services:
+
+    grafana:
+        image: $REGISTRY/$NAME:$GRAFANA_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - GRAFANA_VERSION
+                - GRAFANA_SOURCE
+                - GRAFANA_ARCH
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:latest

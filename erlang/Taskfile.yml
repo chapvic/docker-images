@@ -1,0 +1,78 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-erlang:
+        silent: true
+        vars:
+            ERLANG_TAG:
+                sh: git ls-remote --refs {{.ERLANG_SOURCE}} 'refs/tags/OTP-{{.VERSION}}.*' | sed 's,.*\/,,; s,\^{},,;' | grep -v 'rc' | sort --version-sort | tail -n1
+            REBAR3_VERSION:
+                sh: git ls-remote --refs {{.REBAR3_SOURCE}} "refs/tags/*" 2>/dev/null | sed 's,.*\/,,; s,\^{},,;' | grep -E '^[0-9]' | grep -Ev '\-' | sort --version-sort | uniq | tail -n1
+        cmds:
+            - echo "- {{.TITLE}} (with Rebar3 v{{.REBAR3_VERSION}})"
+            - sed -i '/ERLANG_VERSION=/d; /REBAR3_VERSION=/d; /ERLANG_TAG=/d' .env
+            - echo -e "ERLANG_VERSION={{.VERSION}}\nREBAR3_VERSION={{.REBAR3_VERSION}}\nERLANG_TAG={{.ERLANG_TAG}}" >> .env
+            - docker compose build --push
+            - sed -i '/ERLANG_VERSION=/d; /REBAR3_VERSION=/d; /ERLANG_TAG=/d' .env
+            - echo "[ Done ]"
+
+    build:
+        desc: 'Build Erlang'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building Erlang ]\e[0;0m'
+            - for: { var: ERLANG_VERSION_LIST }
+              task: build-erlang
+              vars:
+                TITLE: 'Erlang OTP-{{.ITEM}}'
+                VERSION: '{{.ITEM}}'
+
+    sync-erlang:
+        silent: true
+        cmds:
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
+            - echo "[ Done ]"
+
+    sync:
+        desc: 'Synchronize with DockerHub'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - for: { var: ERLANG_VERSION_LIST }
+              task: sync-erlang
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    checkout-erlang:
+        silent: true
+        internal: true
+        vars:
+            ERLANG_VERSION:
+                sh: git ls-remote --refs {{.ERLANG_SOURCE}} 'refs/tags/OTP-{{.VERSION}}.*' | sed 's,.*\/,,; s,\^{},,;' | grep -v 'rc' | sed -r 's/^OTP\-(.*)/\1/' | sort --version-sort | tail -n1
+        cmds:
+            - echo -n "{{.ERLANG_VERSION}} "
+
+    checkout:
+        silent: true
+        cmds:
+            - for: { var: ERLANG_VERSION_LIST }
+              task: checkout-erlang
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l

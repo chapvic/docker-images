@@ -1,0 +1,7 @@
+#!/bin/bash
+
+out1=`netstat -lnt | grep ":${PORT:-8080} " | wc -l`
+out2=`netstat -lnt | grep ":${PORT:-8443} " | wc -l`
+if [ "$out1" == "0" ] && [ "$out2" == "0" ]; then
+    exit 1
+fi

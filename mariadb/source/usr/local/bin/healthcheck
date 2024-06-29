@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -eo pipefail
+
+if [ -z "$MARIADB_ROOT_PASSWORD" ]; then
+    # there's no way we can guess what the random MariaDB password was
+    echo >&2 'healthcheck error: MARIADB_ROOT_PASSWORD is not set!'
+    exit 0
+fi
+
+host="$(hostname --ip-address || echo '127.0.0.1')"
+user="${MARIADB_USER:-root}"
+export MYSQL_PWD="${MARIADB_PASSWORD:-$MARIADB_ROOT_PASSWORD}"
+
+args=(
+    # force mysql to not use the local "mysqld.sock" (test "external" connectibility)
+    -h"$host"
+    -u"$user"
+    --silent
+)
+
+if command -v mysqladmin &> /dev/null; then
+    if mysqladmin "${args[@]}" ping > /dev/null; then
+	exit 0
+    fi
+else
+    if select="$(echo 'SELECT 1' | mysql "${args[@]}")" && [ "$select" = '1' ]; then
+	exit 0
+    fi
+fi
+
+exit 1

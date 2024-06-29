@@ -1,0 +1,18 @@
+services:
+
+    onedrive:
+        image: $REGISTRY/$NAME:$ONEDRIVE_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - ONEDRIVE_SOURCE
+                - ONEDRIVE_VERSION
+                - GOSU_SOURCE
+                - GOSU_VERSION
+            tags:
+                - $REGISTRY/$NAME:latest

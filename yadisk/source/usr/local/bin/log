@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#[ -f /.dockerenv ] || exit 1
+
+set -e
+
+
+if [ -z "$1" ]; then
+    echo -e "--------------------------"
+    echo -e "  ${CL_GREEN}Interactive Log Viewer${CL_NONE}"
+    echo -e "--------------------------"
+    echo -e "  ${CL_MAGENTA}Usage: ${CL_WHITE}$(basename $0) ${CL_CYAN}<logname>${CL_NONE}"
+    echo -e ""
+    echo -e "  ${CL_CYAN}cli   ${CL_WHITE}- view cli.log${CL_NONE}"
+    echo -e "  ${CL_CYAN}core  ${CL_WHITE}- view core.log${CL_NONE}"
+    echo -e "  ${CL_CYAN}push  ${CL_WHITE}- view push.log${CL_NONE}"
+    echo -e ""
+    exit 1
+fi
+
+sHome='/yandex'
+sConf="${sHome}/.config/yandex-disk/config.cfg"
+
+if ! [ -f ${sConf} ]; then
+    echo -e "${CL_RED}ERROR: Configuration file is not found!${CL_NONE}"
+    exit 1
+fi
+
+. ${sConf}
+
+if [ -z ${dir} ]; then
+    echo -e "${CL_RED}ERROR: Yandex.Disk data direcory is not configured!${CL_NONE}"
+    exit 1
+fi
+
+clilog=${dir}/.sync/cli.log
+corelog=${dir}/.sync/core.log
+pushlog=${dir}/.sync/push.log
+
+case $1 in
+    cli)
+        tail --pid=1 -f ${clilog}
+        break
+        ;;
+    core)
+        tail --pid=1 -f ${corelog}
+        break
+        ;;
+    push)
+        tail --pid=1 -f ${pushlog}
+        break
+        ;;
+    *)
+        echo -e "${CL_RED}ERROR: No valid log identifier!${CL_NONE}"
+        exit 1
+        ;;
+esac
