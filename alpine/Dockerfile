@@ -105,5 +105,6 @@ apk add --no-cache --update \
     sqlite-dev \
     yarn
 EOF
+RUN npm i --location=global pnpm
 WORKDIR /src
 CMD ["bash"]
