@@ -9,7 +9,7 @@ ARG POSTGRES_SOURCE \
     CLANG_VERSION=${CLANG_VERSION:-15}
 ENV LLVM_CONFIG="/usr/lib/llvm${LLVM_VERSION}/bin/llvm-config" \
     CLANG=clang-${CLANG_VERSION}
-RUN apk add --no-cache --update \
+RUN apk add --no-cache --upgrade \
     flex-dev perl-dev musl-libintl musl-locales gettext-tiny zstd-dev readline-static python3-dev tcl-dev krb5-dev \
     perl-locale-msgfmt perl-dev perl-ipc-run perl-utils e2fsprogs-dev openldap-dev openldap-back-mdb openldap-overlay-all \
     llvm${LLVM_VERSION}-dev clang${CLANG_VERSION}
@@ -60,7 +60,7 @@ ARG POSTGRES_VERSION \
     CLANG_VERSION=${CLANG_VERSION:-15} \
     PUID ${PUID:-1000} \
     PGID ${PGID:-1000}
-RUN apk add --no-cache --update lz4 lz4-libs zstd libxml2 libxslt musl-libintl musl-locales e2fsprogs-libs \
+RUN apk add --no-cache --upgrade lz4 lz4-libs zstd libxml2 libxslt musl-libintl musl-locales e2fsprogs-libs \
     libuuid tcl icu-libs icu-data-full krb5-libs openldap openldap-back-mdb openldap-overlay-all \
     llvm${LLVM_VERSION}-libs clang${CLANG_VERSION}-libs clang${CLANG_VERSION}-libclang
 COPY --from=postgres-builder /app /app

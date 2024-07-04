@@ -7,7 +7,7 @@ RUN <<EOF
 set -e
 chmod 755 /etc && chmod 700 /root
 ln -s /usr/share/zoneinfo/$TZ /etc/localtime
-apk add --no-cache --update \
+apk add --no-cache --upgrade \
     bash bash-completion \
     ca-certificates coreutils curl \
     openssh-client openssl \
@@ -24,7 +24,7 @@ RUN <<EOF
 set -e
 export ICU=$(apk search --no-cache -q icu-data-full)
 [ -n "$ICU" ] || export ICU=icu-data
-apk add --no-cache --update $ICU \
+apk add --no-cache --upgrade $ICU \
     bzip2 \
     docbook-xml docbook-xsl \
     findutils \
@@ -90,7 +90,7 @@ ENV SHELL=/bin/bash\
 FROM alpine-base AS alpine-dev
 RUN <<EOF
 set -e
-apk add --no-cache --update \
+apk add --no-cache --upgrade \
     alpine-sdk autoconf automake \
     binutils-gold bison build-base bzip2-dev \
     cmake curl-dev \

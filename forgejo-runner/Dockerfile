@@ -20,7 +20,7 @@ ARG PUID=${PUID:-1000} \
 COPY --from=runner-builder /app /app
 RUN <<EOF
 set -e
-apk add --no-cache acl
+apk add --no-cache --upgrade acl
 groupadd -g ${PGID} runner
 useradd -u ${PUID} -g ${PGID} -d /app -s /bin/bash runner
 mkdir -p $RUNNER_DATA

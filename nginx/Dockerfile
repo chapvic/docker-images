@@ -5,7 +5,7 @@ ARG NGINX_VERSION \
     NGINX_SOURCE \
     GEOIP2_VERSION \
     GEOIP2_SOURCE
-RUN apk add --update --no-cache gd-dev geoip-dev libatomic_ops-dev zlib-static perl-dev libmaxminddb-dev
+RUN apk add --upgrade --no-cache gd-dev geoip-dev libatomic_ops-dev zlib-static perl-dev libmaxminddb-dev
 RUN git clone -b $GEOIP2_VERSION $GEOIP2_SOURCE geoip2
 RUN git clone -b release-$NGINX_VERSION $NGINX_SOURCE nginx
 WORKDIR /src/nginx
@@ -75,7 +75,7 @@ ARG NGINX_VERSION \
 COPY --from=nginx-builder /app /app
 RUN <<EOF
 set -e
-apk add --update --no-cache gd geoip libatomic_ops libmaxminddb
+apk add --upgrade --no-cache gd geoip libatomic_ops libmaxminddb
 groupadd -g $PGID nginx
 useradd -u $PUID -g $PGID -d /app/html -s /sbin/nologin -m nginx
 chown -R nginx:nginx /app

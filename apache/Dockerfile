@@ -5,7 +5,7 @@ ARG PUID=${PUID:-1000} \
     PGID=${PGID:-1000}
 RUN <<EOF
 set -e
-apk add --no-cache apache2 apache2-ctl apache2-error apache2-http2 apache2-icons apache2-proxy apache2-ssl apache2-utils
+apk add --no-cache --upgrade apache2 apache2-ctl apache2-error apache2-http2 apache2-icons apache2-proxy apache2-ssl apache2-utils
 cp -rf /etc/apache2 /etc/apache2.dist
 groupmod -g $PGID apache
 usermod -u $PUID apache

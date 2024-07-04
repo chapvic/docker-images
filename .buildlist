@@ -1,2 +1,13 @@
 # BUILD LIST
+alpine
 gitea
+gitea-runner
+forgejo-runner
+caddy
+nginx
+unit
+apache
+php
+kms
+samba
+yadisk

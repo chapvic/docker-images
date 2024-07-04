@@ -5,7 +5,7 @@ ARG POWERSHELL_VERSION \
     POWERSHELL_URL \
     PUID=${PUID:-1000} \
     PGID=${PGID:-1000}
-RUN apk add --no-cache --update \
+RUN apk add --no-cache --upgrade \
     less \
     ncurses-terminfo-base \
     krb5-libs \
@@ -16,7 +16,7 @@ RUN apk add --no-cache --update \
     userspace-rcu \
     zlib \
     icu-libs
-RUN apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main add --no-cache --update lttng-ust
+RUN apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main add --no-cache --upgrade lttng-ust
 ### ------------------
 ### Install PowerShell
 ### ------------------

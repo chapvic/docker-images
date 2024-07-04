@@ -19,7 +19,7 @@ FROM $REGISTRY/alpine AS element
 ARG ELEMENT_VERSION \
     PUID ${PUID:-1000} \
     PGID ${PGID:-1000}
-RUN apk add --no-cache nginx
+RUN apk add --no-cache --upgrade nginx
 COPY --from=element-builder /src/element/webapp /app
 COPY --from=element-builder /src/element/nginx/conf.d/default.conf /etc/nginx/http.d/default.conf
 ADD source /

@@ -17,7 +17,7 @@ FROM $REGISTRY/alpine:slim AS minio
 ARG MINIO_VERSION \
     PUID ${PUID:-1000} \
     PGID ${PGID:-1000}
-RUN apk add --no-cache --update lsof net-tools util-linux
+RUN apk add --no-cache --upgrade lsof net-tools util-linux
 COPY --from=minio-builder /usr/local/bin /usr/local/bin
 ENV MINIO_VERSION=$MINIO_VERSION
 RUN <<EOF

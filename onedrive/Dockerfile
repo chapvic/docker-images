@@ -11,6 +11,7 @@ WORKDIR /src/onedrive
 RUN autoreconf -fiv && ./configure && make clean && make -j$(nproc) && make install
 RUN cp -f contrib/docker/entrypoint.sh /usr/local/bin/entrypoint
 
+
 FROM $REGISTRY/alpine AS onedrive
 ARG ONEDRIVE_VERSION \
     PUID=${PUID:-1000} \
@@ -18,7 +19,7 @@ ARG ONEDRIVE_VERSION \
 COPY --from=onedrive-builder /usr/local/bin /usr/local/bin
 RUN <<EOF
 set -e
-apk add --no-cache --update libcurl libgcc sqlite-libs ldc-runtime
+apk add --no-cache --upgrade libcurl libgcc sqlite-libs ldc-runtime
 mkdir -p /onedrive/conf /onedrive/data
 EOF
 ENV ONEDRIVE_VERSION=$ONEDRIVE_VERSION \

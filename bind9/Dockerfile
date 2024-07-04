@@ -3,7 +3,7 @@ ARG REGISTRY
 FROM $REGISTRY/alpine-dev AS bind9-builder
 ARG BIND9_VERSION \
     BIND9_SOURCE
-RUN apk add --no-cache --update libuv-dev libcap-dev libidn2-dev geoip-dev py3-ply pytest json-c-dev lmdb-dev \
+RUN apk add --no-cache --upgrade libuv-dev libcap-dev libidn2-dev geoip-dev py3-ply pytest json-c-dev lmdb-dev \
     libgss-dev krb5-dev userspace-rcu-dev libmaxminddb-dev libedit-dev jemalloc-dev
 RUN git clone -b v$BIND9_VERSION $BIND9_SOURCE bind9
 WORKDIR /src/bind9
@@ -19,7 +19,7 @@ ARG BIND9_VERSION \
     PUID ${PUID:-1000} \
     PGID ${PGID:-1000}
 COPY --from=bind9-builder /app /app
-RUN apk add --no-cache --update libxml2 libidn2 libuv libcap geoip json-c lmdb libgss krb5-libs \
+RUN apk add --no-cache --upgrade libxml2 libidn2 libuv libcap geoip json-c lmdb libgss krb5-libs \
     userspace-rcu libmaxminddb libedit jemalloc gettext-envsubst jq
 ADD source /
 RUN <<EOF

@@ -41,7 +41,7 @@ COPY --from=unit-builder /app /app
 ADD source /
 RUN <<EOF
 set -e
-apk add --no-cache pcre
+apk add --no-cache --upgrade pcre
 groupadd -g $PGID unit
 useradd -u $PUID -g $PGID -s /sbin/nologin -d /app/share unit
 chown -R unit:unit /app

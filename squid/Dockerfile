@@ -11,7 +11,7 @@ ARG SQUID_SOURCE \
     SQUID_OPT_DISABLE \
     SQUID_BUILD_INFO
 RUN apk -X https://dl-cdn.alpinelinux.org/alpine/edge/testing add --no-cache libecap-dev && \
-    apk add --no-cache build-base automake autoconf libtool wget ed krb5-dev openssl-dev libxml2-dev libcap-dev expat-dev openldap-dev \
+    apk add --no-cache --upgrade build-base automake autoconf libtool wget ed krb5-dev openssl-dev libxml2-dev libcap-dev expat-dev openldap-dev \
     libnetfilter_conntrack-dev libgss-dev libaio-dev nettle-dev libcap-dev libltdl zlib-dev icu-dev xz-dev iputils-ping
 RUN git clone -b ${SQUID_TAG} ${SQUID_SOURCE} squid
 WORKDIR /src/squid
@@ -36,7 +36,8 @@ ENV SHELL=/bin/bash \
 COPY --from=squid-builder $SQUID_ROOT $SQUID_ROOT
 RUN apk -X https://dl-cdn.alpinelinux.org/alpine/edge/testing add --no-cache libecap && \
      userdel -rf squid &>/dev/null || echo '' ; \
-    apk add --no-cache mc bash shadow wget openssl openldap-clients krb5 krb5-libs libcap2 libxml2 icu-libs icu-data-full libexpat libnetfilter_conntrack libgss libaio nettle libltdl xz-libs iputils-ping && \
+    apk add --no-cache --upgrade mc bash shadow wget openssl openldap-clients krb5 krb5-libs libcap2 libxml2 icu-libs icu-data-full \
+        libexpat libnetfilter_conntrack libgss libaio nettle libltdl xz-libs iputils-ping && \
     mkdir -p $SQUID_CONFDIR_DEFAULT && \
     mv -f $SQUID_CONFDIR/*.default $SQUID_CONFDIR_DEFAULT/ && \
     mv -f $SQUID_CONFDIR/*.documented $SQUID_CONFDIR_DEFAULT/ && \

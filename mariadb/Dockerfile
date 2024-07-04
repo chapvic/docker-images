@@ -3,7 +3,7 @@ ARG REGISTRY
 FROM $REGISTRY/alpine-dev:3.18 AS mariadb-builder
 ARG MARIADB_SOURCE \
     MARIADB_TAG
-RUN apk add --no-cache --update snappy-dev boost-dev
+RUN apk add --no-cache --upgrade snappy-dev boost-dev
 RUN git clone -b ${MARIADB_TAG} --depth=1 ${MARIADB_SOURCE} mariadb
 WORKDIR /src/mariadb
 RUN git submodule update --init --recursive
@@ -31,7 +31,7 @@ ARG MARIADB_VERSION \
     PUID ${PUID:-1000} \
     PGID ${PGID:-1000}
 COPY --from=mariadb-builder /app /app
-RUN apk add --no-cache --update openssl libevent libxml2 bzip2 lz4 lzo snappy boost libedit pcre2   # "libexecinfo" removed from 3.17
+RUN apk add --no-cache --upgrade openssl libevent libxml2 bzip2 lz4 lzo snappy boost libedit pcre2   # "libexecinfo" removed from 3.17
 ENV MARIADB_VERSION=${MARIADB_VERSION} \
     PATH=/app/bin:$PATH
 RUN groupadd -g $PGID mysql && \

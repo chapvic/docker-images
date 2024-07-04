@@ -1,7 +1,7 @@
 ARG REGISTRY
 
 FROM $REGISTRY/alpine:slim AS samba
-RUN apk add --no-cache --update samba cifs-utils
+RUN apk add --no-cache --upgrade samba cifs-utils
 ADD source /
 STOPSIGNAL SIGINT
 EXPOSE 139/tcp 445/tcp
