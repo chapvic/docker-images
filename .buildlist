@@ -1,2 +1,6 @@
 # BUILD LIST
-actions
+golang
+rust
+onedrive
+powershell
+grafana
