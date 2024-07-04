@@ -29,7 +29,7 @@ ARG GITEA_VERSION \
     PGID ${PGID:-1000}
 RUN <<EOF
 set -e
-apk add --no-cache -upgrade gettext linux-pam openssh s6 postgresql16-client py3-docutils py3-pygments \
+apk add --no-cache --upgrade gettext linux-pam openssh s6 postgresql16-client py3-docutils py3-pygments \
     asciidoctor freetype freetype-dev gcc g++ libpng libffi-dev py-pip python3-dev py3-pip py3-pyzmq pandoc
 groupadd -g $PGID git
 useradd -g $PGID -u $PUID -s /bin/bash -d /data/git git

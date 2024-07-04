@@ -1,5 +1,4 @@
 # BUILD LIST
-alpine
 gitea
 gitea-runner
 forgejo-runner
