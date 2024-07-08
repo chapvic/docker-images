@@ -1,0 +1,4 @@
+#!/bin/bash
+
+out=`netstat -lnt | grep ":${PORT:-8443} "`
+[ -n "$out" ] ||  exit 1

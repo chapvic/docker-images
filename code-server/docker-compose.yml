@@ -1,0 +1,12 @@
+services:
+
+    apache:
+        image: $REGISTRY/$NAME:latest
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
