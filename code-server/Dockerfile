@@ -1,8 +1,7 @@
-ARG REGISTRY
-
 FROM lscr.io/linuxserver/code-server:latest
 ARG PUID=${PUID:-1000} \
-    PGID=${PGID:-1000}
+    PGID=${PGID:-1000} \
+    REGISTRY
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y dist-upgrade && \
     apt-get -y install bash-completion build-essential gcc g++ make cmake automake autoconf bison pkg-config libtool && \
