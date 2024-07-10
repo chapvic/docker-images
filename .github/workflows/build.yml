@@ -32,7 +32,7 @@ jobs:
       run: ./build.sh "${{ secrets.MYDOCKER_NAME }}" "${{ secrets.TARGET_NAME}}/${{ secrets.TARGET_USERNAME }}"
 
     - name: Send notification
-      uses: chapvic/telegram-notify@master
+      uses: chapvic/action-telegram-notify@master
       if: always()
       with:
         chat: ${{ secrets.TELEGRAM_CHAT_ID }}
