@@ -58,6 +58,7 @@ Commands:
     dump <zone>         Dump all records for <zone>
     status <zone>       Display status information about <zone>
     reload <zone>|@     Reload zone (@ - reload all zones)
+    update              Update configuration
 "
     exit 127
 }
@@ -175,7 +176,7 @@ function _cmd_update() {
         for zone in $zones; do
             zone=$(basename $zone)
             _nlog "- $zone ... "
-            sed -e 's/%ZONE%/'$zone'/g' -e 's/%TRANSFER%/none;/g' /app/etc/zone.template >> /app/etc/master.conf
+            sed -e 's/%ZONE%/'$zone'/g' /app/etc/zone.template >> /app/etc/master.conf
             _log "OK"
         done
     fi
