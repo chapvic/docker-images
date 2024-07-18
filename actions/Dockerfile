@@ -26,4 +26,5 @@ EOF
 RUN apk add --no-cache --upgrade gawk grep sed procps util-linux iputils
 
 ADD source /
-RUN git config --global http.sslVerify false
+RUN git config --global --add safe.directory '*' && \
+    git config --global http.sslVerify false
