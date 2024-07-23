@@ -1,2 +1,26 @@
 # BUILD LIST
-alpine
+actions
+golang
+erlang
+rust
+postgres
+mariadb
+gitea
+gitea-runner
+forgejo-runner
+keycloak
+bind9
+caddy
+nginx
+unit
+apache
+php
+kms
+samba
+onedrive
+minio
+powershell
+squid
+dendrite
+element
+grafana
