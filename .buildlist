@@ -1,2 +1,4 @@
 # BUILD LIST
-keycloak
+bind9
+caddy
+nginx
