@@ -1,4 +1,3 @@
 # BUILD LIST
-minio
-powershell
-squid
+dendrite
+element
