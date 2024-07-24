@@ -5,7 +5,7 @@ ARG TOOLS_URL \
     TOOLS_LIST
 
 # System tools
-RUN apk add --no-cache --upgrade git git-lfs rsync skopeo jq lynx binutils
+RUN apk add --no-cache --upgrade git git-lfs rsync skopeo jq lynx binutils icu-data-full
 # Node JS
 RUN apk add --no-cache --upgrade nodejs npm yarn
 # Python
