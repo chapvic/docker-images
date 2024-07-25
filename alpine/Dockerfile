@@ -101,9 +101,11 @@ apk add --no-cache --upgrade \
     ncurses-dev nodejs npm \
     openssl-dev \
     pcre-dev \
+    python3-dev py3-pip \
     readline-dev \
     sqlite-dev \
     yarn
+npm install -g pnpm
 EOF
 WORKDIR /src
 CMD ["bash"]
