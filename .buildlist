@@ -1,3 +1,9 @@
 # BUILD LIST
+alpine
+golang
+pgpro
+caddy
+nginx
+unit
 minio
 element
