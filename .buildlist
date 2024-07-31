@@ -1,6 +1,4 @@
 # BUILD LIST
-erlang
-gitea
-gitea-runner
-forgejo-runner
-minio
+mariadb
+keycloak
+kms
