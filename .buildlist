@@ -1,5 +1,4 @@
 # BUILD LIST
-apache
-php
-onedrive
-grafana
+dendrite
+element
+code-server
