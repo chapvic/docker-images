@@ -1,4 +1,6 @@
 # BUILD LIST
-dendrite
-element
-code-server
+erlang
+gitea
+gitea-runner
+forgejo-runner
+minio
