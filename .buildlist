@@ -1,4 +1,6 @@
 # BUILD LIST
-mariadb
-keycloak
-kms
+rust
+postgres
+samba
+powershell
+squid
