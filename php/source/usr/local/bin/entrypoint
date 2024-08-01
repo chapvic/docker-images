@@ -24,6 +24,33 @@ if [ ${PUID} -ne ${sUID} ]; then
     usermod -g ${sUSER} -u ${PUID} ${sUSER}
 fi
 
+
+STARTUP_DIR="/etc/entrypoint.d/"
+
+if /usr/bin/find "${STARTUP_DIR}" -mindepth 1 -maxdepth 1 -type f -print -quit 2>/dev/null | read v; then
+    echo -e "${CL_GREEN}- ${STARTUP_DIR}${CL_WHITE} is not empty, will attempt to perform setup${CL_NONE}"
+    echo -e "${CL_MAGENTA}- Looking for shell scripts in ${CL_CYAN}${STARTUP}${CL_NONE}"
+    /usr/bin/find "${STARTUP}" -follow -type f -print | sort -V | while read -r f; do
+        case "${f}" in
+            *.sh)
+                if [ -x "${f}" ]; then
+                    echo -e "${CL_CYAN}- Launching ${f}${CL_NONE}";
+                    "${f}"
+                else
+                    # warn on shell scripts without exec bit
+                    echo -e "${CL_YELLOW}- Ignoring ${f} (not executable)${CL_NONE}"
+                fi
+                ;;
+            *) echo -e "${CL_YELLOW}- Ignoring ${f}${CL_NONE}"
+                ;;
+        esac
+    done
+    echo -e "${CL_GREEN}Setup complete!${CL_NONE}"
+else
+    echo -e "${CL_CYAN}No files found in ${CL_WHITE}${STARTUP_DIR}${CL_YELLOW}, skipping setup...${CL_NONE}"
+fi
+
+
 if [ -z "$1" ]; then
     echo -e "${CL_GREEN}Starting ${CL_YELLOW}[$(php-fpm -v | head -n1 | awk '{print $1" "$2}')]${CL_NONE}"
     # Check for configuration exist and restore from defaults

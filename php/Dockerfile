@@ -10,7 +10,8 @@ ARG PHP_NUM \
     PGID=${PGID:-1000}
 RUN <<EOF
 set -e
-apk add --no-cache --upgrade gcompat php${PHP_NUM} php${PHP_NUM}-dev $PHP_MODULES $PECL_MODULES
+apk add --no-cache --upgrade gcompat postfix \
+    php${PHP_NUM} php${PHP_NUM}-dev $PHP_MODULES $PECL_MODULES
 ln -sf /usr/bin/php${PHP_NUM} /usr/bin/php
 ln -sf /usr/sbin/php-fpm${PHP_NUM} /usr/sbin/php-fpm
 groupadd -g $PGID www
