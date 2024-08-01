@@ -29,8 +29,8 @@ STARTUP_DIR="/etc/entrypoint.d/"
 
 if /usr/bin/find "${STARTUP_DIR}" -mindepth 1 -maxdepth 1 -type f -print -quit 2>/dev/null | read v; then
     echo -e "${CL_GREEN}- ${STARTUP_DIR}${CL_WHITE} is not empty, will attempt to perform setup${CL_NONE}"
-    echo -e "${CL_MAGENTA}- Looking for shell scripts in ${CL_CYAN}${STARTUP}${CL_NONE}"
-    /usr/bin/find "${STARTUP}" -follow -type f -print | sort -V | while read -r f; do
+    echo -e "${CL_MAGENTA}- Looking for shell scripts in ${CL_CYAN}${STARTUP_DIR}${CL_NONE}"
+    /usr/bin/find "${STARTUP_DIR}" -follow -type f -print | sort -V | while read -r f; do
         case "${f}" in
             *.sh)
                 if [ -x "${f}" ]; then
