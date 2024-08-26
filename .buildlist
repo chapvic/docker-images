@@ -1,3 +1,4 @@
 # BUILD LIST
-bind9
-powershell
+forgejo-runner
+minio
+code-server
