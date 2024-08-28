@@ -1,4 +1,3 @@
 # BUILD LIST
-forgejo-runner
-minio
-code-server
+element
+grafana
