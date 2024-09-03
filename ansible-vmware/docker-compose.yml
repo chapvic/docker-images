@@ -11,3 +11,4 @@ services:
                 - OS_VERSION
                 - ANSIBLE_VERSION
                 - VMWARE_PLUGIN_VERSION
+                - TZ
