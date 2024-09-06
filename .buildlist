@@ -1,8 +1,2 @@
 # BUILD LIST
-golang
-erlang
-gitea
-apache
-kms
-samba
-yadisk
+actions
