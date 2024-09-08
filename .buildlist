@@ -1,3 +1,7 @@
 # BUILD LIST
 alpine
-forgejo-runner
+actions
+caddy
+apache
+kms
+samba

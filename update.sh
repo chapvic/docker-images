@@ -9,6 +9,10 @@ counter=0
 update_list=""
 commit_text=""
 
+if [ -f .releases ]; then
+    cp .releases .releases.$(date +%Y%M%d_%H%M%S)
+fi
+
 echo "=== Checkout updates ==="
 while IDS= read -r name; do
     # Checkout newer version of package
@@ -23,7 +27,7 @@ while IDS= read -r name; do
     [[ -n $saved_tags ]] || saved_tags="[none]"
 
     # Check for package rebuild reason
-    if [[ ! "$tags" == "$saved_tags" ]]; then
+    if [[ -n "$tags" ]] && [[ ! "$tags" == "$saved_tags" ]]; then
         sed -i "/^$name\=/d" .releases
         echo "$name=$tags" >> .releases
         echo "$name" >> .buildlist

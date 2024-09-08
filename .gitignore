@@ -3,3 +3,4 @@ alpine/source
 *.tar
 *.xz
 *.zip
+.releases.*
