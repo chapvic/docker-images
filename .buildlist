@@ -1,5 +1,8 @@
 # BUILD LIST
-keycloak
-nginx
-onedrive
-grafana
+bind9
+unit
+php
+powershell
+dendrite
+element
+code-server
