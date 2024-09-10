@@ -1,2 +1,7 @@
 # BUILD LIST
-element
+golang
+erlang
+rust
+postgres
+mariadb
+squid
