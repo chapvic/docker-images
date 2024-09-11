@@ -1,7 +1,2 @@
 # BUILD LIST
 golang
-erlang
-rust
-postgres
-mariadb
-squid
