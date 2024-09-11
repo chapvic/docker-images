@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.8.1
+
 ARG REGISTRY
 
 FROM $REGISTRY/alpine-dev AS kms-builder

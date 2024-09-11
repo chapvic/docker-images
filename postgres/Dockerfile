@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.8.1
+
 ARG REGISTRY
 
 FROM $REGISTRY/alpine-dev AS postgres-builder
@@ -45,13 +47,6 @@ ENV CFLAGS='-O2 -pipe'
 RUN make -j$(nproc) world-bin
 RUN make install-world-bin
 RUN make -j$(nproc) -C contrib install
-# pgvector
-ENV PATH=/app/bin:$PATH
-WORKDIR /src
-# PgVector plugin
-RUN git clone -b v${PG_VECTOR_VERSION} ${PG_VECTOR_SOURCE} pgvector
-WORKDIR /src/pgvector
-RUN make -j$(nproc) && make install
 
 
 FROM $REGISTRY/alpine AS postgres

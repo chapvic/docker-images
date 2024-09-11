@@ -1,5 +1,6 @@
-ARG REGISTRY
+# syntax=docker/dockerfile:1.8.1
 
+ARG REGISTRY
 
 FROM $REGISTRY/alpine-dev AS keycloak-builder
 ARG KEYCLOAK_VERSION \
@@ -11,7 +12,6 @@ RUN tar xzf ${KEYCLOAK_VERSION}.tar.gz
 WORKDIR /src/keycloak-${KEYCLOAK_VERSION}/quarkus
 RUN ../mvnw clean install -Pdistribution -DskipTests=true
 RUN mkdir /app && tar -xzvf dist/target/keycloak-${KEYCLOAK_VERSION}.tar.gz -C /app --strip=1
-
 
 FROM $REGISTRY/alpine
 ARG KEYCLOAK_VERSION \
