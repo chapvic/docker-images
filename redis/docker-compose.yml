@@ -1,0 +1,21 @@
+services:
+
+    redis:
+        image: $REGISTRY/$NAME:$REDIS_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - REDIS_SOURCE
+                - REDIS_VERSION
+                - REDIS_MAJOR
+                - PUID
+                - PGID
+            tags:
+                - $REGISTRY/$NAME:$REDIS_MAJOR
+                - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$REDIS_VERSION
+                - $SYNC_TARGET/$NAME:$REDIS_MAJOR
+                - $SYNC_TARGET/$NAME:latest

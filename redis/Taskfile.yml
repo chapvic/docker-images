@@ -1,0 +1,59 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-redis:
+        silent: true
+        internal: true
+        vars:
+            REDIS_VERSION:
+                sh: git ls-remote --refs {{.REDIS_SOURCE}} "refs/tags/{{.VERSION}}.*" 2>/dev/null | sed 's,.*\/,,; s,\^{},,;' | grep -E '^[0-9.]+$' | sort --version-sort | tail -n1
+        cmds:
+            - echo "- {{.TITLE}}"
+            - sed -i '/REDIS_VERSION=/d; /REDIS_MAJOR=/d' .env
+            - echo -e "REDIS_VERSION={{.REDIS_VERSION}}\nREDIS_MAJOR={{.VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/REDIS_VERSION=/d; /REDIS_MAJOR=/d' .env
+            - echo "[ Done ]"
+
+    build:
+        desc: 'Build Redis'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building Redis ]\e[0;0m'
+            - for: { var: REDIS_VERSION_LIST }
+              task: build-redis
+              vars:
+                TITLE: 'Redis {{.ITEM}}'
+                VERSION: '{{.ITEM}}'
+
+    checkout-redis:
+        silent: true
+        internal: true
+        vars:
+            REDIS_VERSION:
+                sh: git ls-remote --refs {{.REDIS_SOURCE}} "refs/tags/{{.VERSION}}.*" 2>/dev/null | sed 's,.*\/,,; s,\^{},,;' | grep -E '^[0-9.]+$' | sort --version-sort | tail -n1
+        cmds:
+            - echo -n "{{.REDIS_VERSION}} "
+
+    checkout:
+        silent: true
+        cmds:
+            - for: { var: REDIS_VERSION_LIST }
+              task: checkout-redis
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+
+    default:
+        silent: true
+        cmds:
+            - task -l

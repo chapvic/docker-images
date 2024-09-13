@@ -1,0 +1,54 @@
+#!/bin/bash
+
+[ -f /.dockerenv ] || exit 1
+
+if [[ $UID -ne 0 ]]; then
+    echo -e "${CL_RED}FATAL: You must have root privileges!${CL_NONE}"
+    exit 1
+fi
+
+sUSER='redis'
+sUID=`getent passwd ${sUSER} | awk -F':' '{print $3}'`
+sGID=`getent passwd ${sUSER} | awk -F':' '{print $4}'`
+sFIX=0
+
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
+REDIS_HOME=$(getent passwd ${sUSER} | awk -F: '{print $6}')
+REDIS_DEFAULT_CONFIG=${REDIS_HOME}/redis.conf
+
+REDIS_CONFIG=${REDIS_CONFIG:-}
+
+if [ -z "sUID" ] || [ -z "sGID" ]; then
+    echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
+    exit 1
+fi
+if [ ${PGID} -ne ${sGID} ]; then
+    groupmod -g ${PGID} ${sUSER}
+fi
+if [ ${PUID} -ne ${sUID} ]; then
+    usermod -g ${sUSER} -u ${PUID} ${sUSER}
+fi
+
+if [ -z "$1" ]; then
+    echo -e "${CL_GREEN}Starting Redis ${CL_YELLOW}[$(redis-server -v | awk '{print $3}' | sed 's/v=//')]${CL_NONE}"
+    echo -e "${CL_CYAN}Changing user & group permissions for ${CL_WHITE}'${sUSER}' ${CL_GREEN}-->${CL_WHITE} UID=${CL_GREEN}${PUID}${CL_WHITE} / GID=${CL_GREEN}${PGID}${CL_NONE}"
+    chown -R ${sUSER}:${sUSER} ${REDIS_HOME}
+    if [ -n "${REDIS_CONFIG}" ]; then
+        if [ -f "${REDIS_CONFIG}" ]; then
+            echo -e "${CL_MAGENTA}Using configuration from ${CL_WHITE}${REDIS_CONFIG}${CL_NONE}"
+        else
+            echo -e "${CL_RED}WARNING:${CL_YELLOW} Redis configuration file ${CL_CYAN}${REDIS_CONFIG}${CL_YELLOW} is not found!${CL_NONE}"
+            unset REDIS_CONFIG
+        fi
+    else
+        if [ -f "$REDIS_DEFAULT_CONFIG" ]; then
+            echo -e "${CL_MAGENTA}Using configuration from ${CL_WHITE}$REDIS_DEFAULT_CONFIG${CL_NONE}"
+            REDIS_CONFIG=$REDIS_DEFAULT_CONFIG
+        fi
+    fi
+    exec su-exec ${sUSER} redis-server ${REDIS_CONFIG}
+else
+    exec "$@"
+fi;

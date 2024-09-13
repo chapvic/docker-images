@@ -1,6 +1,3 @@
 # BUILD LIST
-mariadb
+redis
 keycloak
-nginx
-kms
-minio
