@@ -1,4 +1,3 @@
-
 version: 3
 
 dotenv: [ '.env' ]
@@ -13,18 +12,16 @@ tasks:
                 sh: git ls-remote --refs {{.POSTGRES_SOURCE}} 'refs/tags/REL_{{.VERSION}}_*' | sed 's,.*\/,,; s,\^{},,;' | grep -Ev 'RC|BETA' | sed -r 's/^REL_(.*)/\1/' | tr '_' '.' | sort --version-sort | tail -n1
             POSTGRES_TAG:
                 sh: echo "REL_{{.POSTGRES_VERSION}}" | tr '.' '_'
-            PG_VECTOR_VERSION:
-                sh: git ls-remote --refs {{.PG_VECTOR_SOURCE}} 'refs/tags/v*' | sed 's,.*\/,,; s,\^{},,;' | sed -r 's/v(.*)/\1/' | sort --version-sort | tail -n1
         cmds:
             - echo "- {{.TITLE}} ({{.POSTGRES_VERSION}})"
-            - sed -i '/POSTGRES_VERSION=/d; /POSTGRES_TAG=/d; /MAJOR_VERSION=/d; /PG_VECTOR_VERSION=/d' .env
-            - echo -e "POSTGRES_VERSION={{.POSTGRES_VERSION}}\nPOSTGRES_TAG={{.POSTGRES_TAG}}\nMAJOR_VERSION={{.VERSION}}\nPG_VECTOR_VERSION={{.PG_VECTOR_VERSION}}" >> .env
+            - sed -i '/POSTGRES_VERSION=/d; /POSTGRES_TAG=/d; /MAJOR_VERSION=/d' .env
+            - echo -e "POSTGRES_VERSION={{.POSTGRES_VERSION}}\nPOSTGRES_TAG={{.POSTGRES_TAG}}\nMAJOR_VERSION={{.VERSION}}" >> .env
             - docker compose build --push
-            - sed -i '/POSTGRES_VERSION=/d; /POSTGRES_TAG=/d; /MAJOR_VERSION=/d; /PG_VECTOR_VERSION=/d' .env
+            - sed -i '/POSTGRES_VERSION=/d; /POSTGRES_TAG=/d; /MAJOR_VERSION=/d' .env
             - echo "[ Done ]"
 
     build:
-        desc: 'Build Alt Linux'
+        desc: 'Build Postgres'
         silent: true
         cmds:
             - echo -e '\e[44;1m[ Building Postgres ]\e[0;0m'

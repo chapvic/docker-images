@@ -1,0 +1,58 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build-with-postgres:
+        silent: true
+        internal: true
+        cmds:
+            - echo "- PgVectors {{.PGVECTORS_VERSION}} (Postres {{.POSTGRES_VERSION}})"
+            - sed -i '/POSTGRES_VERSION=/d; /PGVECTORS_VERSION=/d' .env
+            - echo -e "POSTGRES_VERSION={{.POSTGRES_VERSION}}\nPGVECTORS_VERSION={{.PGVECTORS_VERSION}}" >> .env
+            - docker compose build #--push
+            - sed -i '/POSTGRES_VERSION=/d; /PGVECTORS_VERSION=/d' .env
+            - echo "[ Done ]"
+
+
+    build-pgvectors:
+        silent: true
+        internal: true
+        cmds:
+            - for: { var: POSTGRES_VERSION_LIST }
+              task: build-with-postgres
+              vars:
+                POSTGRES_VERSION: '{{.ITEM}}'
+                PGVECTORS_VERSION: '{{.VERSION}}'
+
+
+    build:
+        desc: 'Build PgVectors'
+        silent: true
+        cmds:
+            - echo -e '\e[44;1m[ Building PgVectors ]\e[0;0m'
+            - for: { var: PGVECTORS_VERSION_LIST }
+              task: build-pgvectors
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    checkout-pgvectors:
+        silent: true
+        internal: true
+        cmds:
+            - echo -n "{{.VERSION}} "
+
+    checkout:
+        silent: true
+        cmds:
+            - for: { var: PGVECTORS_VERSION_LIST }
+              task: checkout-pgvectors
+              vars:
+                VERSION: '{{.ITEM}}'
+
+    default:
+        silent: true
+        cmds:
+            - task -l

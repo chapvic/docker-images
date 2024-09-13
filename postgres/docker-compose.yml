@@ -15,8 +15,6 @@ services:
                 - POSTGRES_SOURCE
                 - POSTGRES_VERSION
                 - POSTGRES_TAG
-                - PG_VECTOR_SOURCE
-                - PG_VECTOR_VERSION
             tags:
                 - $REGISTRY/$NAME:$MAJOR_VERSION
                 - $REGISTRY/$NAME:latest

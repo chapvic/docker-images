@@ -1,0 +1,20 @@
+services:
+
+    pgvectors:
+        image: $REGISTRY/$NAME:pg$POSTGRES_VERSION-$PGVECTORS_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - ARCH
+                - LLVM_VERSION
+                - CLANG_VERSION
+                - PGVECTORS_SOURCE
+                - PGVECTORS_VERSION
+                - POSTGRES_VERSION
+            tags:
+                - $SYNC_TARGET/$NAME:pg$POSTGRES_VERSION-$PGVECTORS_VERSION

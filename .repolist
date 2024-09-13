@@ -5,6 +5,7 @@ golang
 erlang
 rust
 postgres
+pgvectors
 pgpro
 mariadb
 redis
