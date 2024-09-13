@@ -19,20 +19,6 @@ tasks:
             - sed -i '/ONEDRIVE_VERSION=/d' .env
             - echo "[ Done ]"
 
-    sync:
-        desc: "Synchronize with DockerHub"
-        silent: true
-        vars:
-            ONEDRIVE_VERSION:
-                sh: git ls-remote --tags {{.ONEDRIVE_SOURCE}} 'refs/tags/v*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -v 'rc' | sort --version-sort | tail -n1 | sed -r 's/v(.*)/\1/'
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.ONEDRIVE_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.ONEDRIVE_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.ONEDRIVE_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.ONEDRIVE_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
     checkout:
         silent: true
         vars:
@@ -46,7 +32,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

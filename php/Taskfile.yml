@@ -44,29 +44,6 @@ tasks:
               vars:
                 PHP_VERSION: '{{.ITEM}}'
 
-    sync-php:
-        silent: true
-        internal: true
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.PHP_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.PHP_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.PHP_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.PHP_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        vars:
-            PHP_VERSION_LIST:
-                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk -n '{printf "%s ",$2}'
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: PHP_VERSION_LIST }
-              task: sync-php
-              vars:
-                PHP_VERSION: '{{.ITEM}}'
-
     checkout:
         silent: true
         cmds:
@@ -77,7 +54,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

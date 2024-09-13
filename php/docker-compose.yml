@@ -18,3 +18,5 @@ services:
                 - PGID
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$PHP_VERSION
+                - $SYNC_TARGET/$NAME:latest

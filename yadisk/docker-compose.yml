@@ -12,3 +12,5 @@ services:
                 - PUID
                 - PGID
                 - TZ
+            tags:
+                - $SYNC_TARGET/$NAME:latest

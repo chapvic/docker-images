@@ -1,5 +1,5 @@
 # BUILD LIST
-erlang
-forgejo-runner
-dendrite
-element
+golang
+gitea
+gitea-runner
+grafana

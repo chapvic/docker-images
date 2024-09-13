@@ -34,31 +34,6 @@ tasks:
                 TITLE: 'Postgres {{.ITEM}}'
                 VERSION: '{{.ITEM}}'
 
-    sync-postgres:
-        silent: true
-        internal: true
-        vars:
-            POSTGRES_VERSION:
-                sh: git ls-remote --tags {{.POSTGRES_SOURCE}} 'refs/tags/REL_{{.VERSION}}_*' | sed 's,.*\/,,; s,\^{},,;' | grep -Ev 'RC|BETA' | sed -r 's/^REL_(.*)/\1/' | tr '_' '.' | sort --version-sort | tail -n1
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.POSTGRES_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.POSTGRES_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.POSTGRES_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.POSTGRES_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: POSTGRES_VERSION_LIST }
-              task: sync-postgres
-              vars:
-                VERSION: '{{.ITEM}}'
-
     checkout-postgres:
         silent: true
         internal: true
@@ -81,7 +56,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

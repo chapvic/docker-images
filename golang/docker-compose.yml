@@ -12,3 +12,5 @@ services:
                 - GOLANG_VERSION
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$VERSION
+                - $SYNC_TARGET/$NAME:latest

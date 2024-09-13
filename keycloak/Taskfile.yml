@@ -19,20 +19,6 @@ tasks:
             - sed -i '/KEYCLOAK_VERSION=/d' .env
             - echo "[ Done ]"
 
-    sync:
-        desc: "Synchronize with DockerHub"
-        silent: true
-        vars:
-            KEYCLOAK_VERSION:
-                sh: git ls-remote --refs {{.KEYCLOAK_SOURCE}} 'refs/tags/*' | sed -e '/.*^{}/d; s,.*\/,,; /[a-zA-Z]/d' | sort --version-sort | tail -n1
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.KEYCLOAK_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.KEYCLOAK_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.KEYCLOAK_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.KEYCLOAK_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
     checkout:
         silent: true
         vars:
@@ -46,7 +32,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

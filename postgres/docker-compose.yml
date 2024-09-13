@@ -20,3 +20,6 @@ services:
             tags:
                 - $REGISTRY/$NAME:$MAJOR_VERSION
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$POSTGRES_VERSION
+                - $SYNC_TARGET/$NAME:$MAJOR_VERSION
+                - $SYNC_TARGET/$NAME:latest

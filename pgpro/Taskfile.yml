@@ -37,36 +37,6 @@ tasks:
               vars:
                 VERSION: '{{.ITEM}}'
 
-    sync-target:
-        silent: true
-        internal: true
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}-{{.TARGET}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest-{{.TARGET}} => {{.SYNC_TARGET}}/{{.NAME}}:latest-{{.TARGET}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest-{{.TARGET}} docker://{{.SYNC_TARGET}}/{{.NAME}}:latest-{{.TARGET}}
-            - echo "[ Done ]"
-
-    sync-pgpro:
-        silent: true
-        internal: true
-        cmds:
-            - for: { var: PGPRO_TARGETS }
-              task: sync-target
-              vars:
-                VERSION: '{{.VERSION}}'
-                TARGET: '{{.ITEM}}'
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: PGPRO_VERSION_LIST }
-              task: sync-pgpro
-              vars:
-                VERSION: '{{.ITEM}}'
-
     checkout:
         silent: true
         cmds:
@@ -77,7 +47,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

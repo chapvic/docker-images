@@ -16,3 +16,5 @@ services:
                 - NJS_VERSION
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$NXT_VERSION
+                - $SYNC_TARGET/$NAME:latest

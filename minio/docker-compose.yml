@@ -12,3 +12,5 @@ services:
                 - MINIO_VERSION
                 - PUID
                 - PGID
+            tags:
+                - $SYNC_TARGET/$NAME:latest

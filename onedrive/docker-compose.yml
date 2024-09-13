@@ -16,3 +16,5 @@ services:
                 - GOSU_VERSION
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$ONEDRIVE_VERSION
+                - $SYNC_TARGET/$NAME:latest

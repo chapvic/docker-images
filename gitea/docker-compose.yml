@@ -15,3 +15,5 @@ services:
                 - PGID
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$GITEA_VERSION
+                - $SYNC_TARGET/$NAME:latest

@@ -32,31 +32,7 @@ tasks:
                 TITLE: 'Golang {{.ITEM}}'
                 VERSION: '{{.ITEM}}'
 
-    sync-golang:
-        silent: true
-        internal: true
-        vars:
-            GOLANG_VERSION:
-                sh: lynx -dump -listonly {{.GOLANG_URL}} | awk '{print $2}' | grep 'go'{{.VERSION}} | grep 'linux-'{{.GOLANG_ARCH}} | sed -r 's,.*/go('$1'.*).linux.*,\1,g' | sort -V | tail -n1
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: GOLANG_VERSION_LIST }
-              task: sync-golang
-              vars:
-                VERSION: '{{.ITEM}}'
-
-
-    checkout-go:
+    checkout-golang:
         silent: true
         internal: true
         vars:
@@ -69,7 +45,7 @@ tasks:
         silent: true
         cmds:
             - for: { var: GOLANG_VERSION_LIST }
-              task: checkout-go
+              task: checkout-golang
               vars:
                 VERSION: '{{.ITEM}}'
 
@@ -78,7 +54,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

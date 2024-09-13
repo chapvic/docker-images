@@ -9,3 +9,5 @@ services:
             args:
                 - REGISTRY
                 - KMS_SOURCE
+            tags:
+                - $SYNC_TARGET/$NAME:latest

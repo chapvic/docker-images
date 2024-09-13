@@ -19,20 +19,6 @@ tasks:
             - sed -i '/GRAFANA_VERSION=/d' .env
             - echo "[ Done ]"
 
-    sync:
-        desc: "Synchronize with DockerHub"
-        silent: true
-        vars:
-            GRAFANA_VERSION:
-                sh: lynx -dump https://grafana.com/grafana/download?edition=oss | grep oss/release/grafana | grep linux-{{.GRAFANA_ARCH}} | tail -n1 | sed -r 's/.*-(.*)\.linux-{{.GRAFANA_ARCH}}.*/\1/'
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.GRAFANA_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.GRAFANA_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.GRAFANA_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.GRAFANA_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
     checkout:
         silent: true
         vars:
@@ -46,7 +32,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

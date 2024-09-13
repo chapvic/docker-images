@@ -8,3 +8,5 @@ services:
             dockerfile: Dockerfile
             args:
                 - REGISTRY
+            tags:
+                - $SYNC_TARGET/$NAME:latest

@@ -18,3 +18,5 @@ services:
                 - PGID
             tags:
                 - $REGISTRY/$NAME:latest-$TARGET
+                - $SYNC_TARGET/$NAME:$PGPRO_VERSION-$TARGET
+                - $SYNC_TARGET/$NAME:latest-$TARGET

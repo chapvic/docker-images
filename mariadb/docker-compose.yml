@@ -16,3 +16,6 @@ services:
             tags:
                 - $REGISTRY/$NAME:$VERSION
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$MARIADB_VERSION
+                - $SYNC_TARGET/$NAME:$VERSION
+                - $SYNC_TARGET/$NAME:latest
