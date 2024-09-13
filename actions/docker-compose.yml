@@ -11,3 +11,7 @@ services:
                 - REGISTRY
                 - TOOLS_URL
                 - TOOLS_LIST
+            tags:
+                - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:alpine
+                - $SYNC_TARGET/$NAME:latest
