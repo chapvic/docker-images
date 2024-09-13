@@ -1,3 +1,4 @@
 # BUILD LIST
-alt
-apache
+bind9
+caddy
+code-server

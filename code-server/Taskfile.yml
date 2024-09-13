@@ -13,15 +13,6 @@ tasks:
             - docker compose build --push
             - echo "[ Done ]"
 
-    sync:
-        desc: "Synchronize with DockerHub"
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
     checkout:
         silent: true
         cmds:

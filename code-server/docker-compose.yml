@@ -10,3 +10,5 @@ services:
                 - REGISTRY
                 - PUID
                 - PGID
+            tags:
+                - $SYNC_TARGET/$NAME:latest

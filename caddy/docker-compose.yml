@@ -14,3 +14,5 @@ services:
                 - PGID
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$CADDY_VERSION
+                - $SYNC_TARGET/$NAME:latest
