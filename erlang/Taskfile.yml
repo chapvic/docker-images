@@ -31,23 +31,6 @@ tasks:
                 TITLE: 'Erlang OTP-{{.ITEM}}'
                 VERSION: '{{.ITEM}}'
 
-    sync-erlang:
-        silent: true
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
-            - echo "[ Done ]"
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: ERLANG_VERSION_LIST }
-              task: sync-erlang
-              vars:
-                VERSION: '{{.ITEM}}'
-
     checkout-erlang:
         silent: true
         internal: true
@@ -70,7 +53,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

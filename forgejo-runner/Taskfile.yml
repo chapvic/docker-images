@@ -19,20 +19,6 @@ tasks:
             - sed -i '/RUNNER_VERSION=/d' .env
             - echo "[ Done ]"
 
-    sync:
-        desc: "Synchronize with DockerHub"
-        silent: true
-        vars:
-            RUNNER_VERSION:
-                sh: git ls-remote --refs {{.RUNNER_SOURCE}} "refs/tags/v*" 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -Ev '\-' | sort --version-sort | tail -n1 | sed 's/^v//'
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.RUNNER_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.RUNNER_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.RUNNER_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.RUNNER_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
     checkout:
         silent: true
         vars:
@@ -46,7 +32,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

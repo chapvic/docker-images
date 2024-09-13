@@ -15,3 +15,5 @@ services:
                 - RUNNER_VERSION
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$RUNNER_VERSION
+                - $SYNC_TARGET/$NAME:latest

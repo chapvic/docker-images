@@ -19,3 +19,5 @@ services:
                 - ELEMENT_JS_SDK_BRANCH
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$ELEMENT_VERSION
+                - $SYNC_TARGET/$NAME:latest

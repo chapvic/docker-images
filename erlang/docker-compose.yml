@@ -13,3 +13,5 @@ services:
                 - REBAR3_SOURCE
                 - ERLANG_VERSION
                 - REBAR3_VERSION
+            tags:
+                - $SYNC_TARGET/$NAME:$ERLANG_VERSION
