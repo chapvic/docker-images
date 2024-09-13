@@ -1,0 +1,28 @@
+services:
+
+    machine-learning:
+        image: $REGISTRY/$NAME-machine-learning:$IMMICH_VERSION
+        env_file: .env
+        build:
+            context: immich/machine-learning
+            dockerfile: ../../Dockerfile.machine-learning
+            tags:
+                - $REGISTRY/$NAME-machine-learning:latest
+
+    server:
+        image: $REGISTRY/$NAME-server:$IMMICH_VERSION
+        env_file: .env
+        build:
+            context: immich
+            dockerfile: ../Dockerfile.server
+            tags:
+                - $REGISTRY/$NAME-server:latest
+
+    web:
+        image: $REGISTRY/$NAME-web:$IMMICH_VERSION
+        env_file: .env
+        build:
+            context: immich/web
+            dockerfile: ../../Dockerfile.web
+            tags:
+                - $REGISTRY/$NAME-web:latest

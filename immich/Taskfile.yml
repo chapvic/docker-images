@@ -1,0 +1,67 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Build Immich Server'
+        silent: true
+        vars:
+            IMMICH_VERSION:
+                sh: git ls-remote --tags {{.IMMICH_SOURCE}} 'refs/tags/*' 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -E '^v[0-9.]+$' | sort --version-sort | tail -n1 | sed 's/v//'
+        cmds:
+            - echo -e '\e[44;1m[ Building Immich Server ]\e[0;0m'
+            - sed -i '/IMMICH_VERSION=/d' .env
+            - echo "IMMICH_VERSION={{.IMMICH_VERSION}}" >> .env
+            - git clone -b v{{.IMMICH_VERSION}} {{.IMMICH_SOURCE}} immich
+            - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/machine-learning/Dockerfile > Dockerfile.machine-learning
+            - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/server/Dockerfile > Dockerfile.server
+            - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/web/Dockerfile > Dockerfile.web
+            - docker compose build
+            - rm -rf immich Dockerfile.*
+            - sed -i '/IMMICH_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    sync:
+        desc: "Synchronize with DockerHub"
+        silent: true
+        vars:
+            IMMICH_VERSION:
+                sh: git ls-remote --tags {{.IMMICH_SOURCE}} 'refs/tags/*' 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -E '^v[0-9.]+$' | sort --version-sort | tail -n1 | sed 's/v//'
+        cmds:
+            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-machine-learning:{{.IMMICH_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}-machine-learning:{{.IMMICH_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-machine-learning:{{.IMMICH_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}-machine-learning:{{.IMMICH_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-server:{{.IMMICH_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}-server:{{.IMMICH_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-server:{{.IMMICH_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}-server:{{.IMMICH_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-web:{{.IMMICH_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}-web:{{.IMMICH_VERSION}}"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-web:{{.IMMICH_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}-web:{{.IMMICH_VERSION}}
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-machine-learning:latest => {{.SYNC_TARGET}}/{{.NAME}}-machine-learning:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-machine-learning:latest docker://{{.SYNC_TARGET}}/{{.NAME}}-machine-learning:latest
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-server:latest => {{.SYNC_TARGET}}/{{.NAME}}-server:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-server:latest docker://{{.SYNC_TARGET}}/{{.NAME}}-server:latest
+            - echo "Sync {{.REGISTRY}}/{{.NAME}}-web:latest => {{.SYNC_TARGET}}/{{.NAME}}-web:latest"
+            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}-web:latest docker://{{.SYNC_TARGET}}/{{.NAME}}-web:latest
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            IMMICH_VERSION:
+                sh: git ls-remote --tags {{.IMMICH_SOURCE}} 'refs/tags/*' 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -E '^v[0-9.]+$' | sort --version-sort | tail -n1 | sed 's/v//'
+        cmds:
+            - echo {{.IMMICH_VERSION}}
+
+    all:
+        desc: 'Build and Synchronize'
+        silent: true
+        cmds:
+            - task: build
+            - task: sync
+
+    default:
+        silent: true
+        cmds:
+            - task -l
