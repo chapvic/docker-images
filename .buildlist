@@ -1,5 +1,6 @@
 # BUILD LIST
-golang
-gitea
-gitea-runner
-grafana
+mariadb
+keycloak
+nginx
+kms
+minio
