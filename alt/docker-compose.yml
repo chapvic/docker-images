@@ -13,3 +13,5 @@ services:
                 - ALT_SOURCE
             tags:
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$ALT_VERSION
+                - $SYNC_TARGET/$NAME:latest
