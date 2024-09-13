@@ -1,3 +1,4 @@
 # BUILD LIST
-redis
-keycloak
+nginx
+kms
+minio
