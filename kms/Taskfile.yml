@@ -18,12 +18,6 @@ tasks:
         cmds:
             - echo latest
 
-    all:
-        desc: 'Build and Synchronize'
-        silent: true
-        cmds:
-            - task: build
-
     default:
         silent: true
         cmds:

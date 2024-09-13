@@ -10,7 +10,7 @@ while IDS= read -r item; do
         pushd $item > /dev/null
         if [[ -f .env ]] && [[ -n "$reg" ]] && [[ -n "$target" ]] then
             sed -i.bak 's,%REGISTRY%,'${reg}',; s,%TARGET%,'${target}',' .env
-            task all
+            task build
             retval=$?
             mv -f .env.bak .env
             if [[ $retval -ne 0 ]]; then

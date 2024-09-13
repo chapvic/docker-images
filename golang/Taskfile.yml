@@ -49,12 +49,6 @@ tasks:
               vars:
                 VERSION: '{{.ITEM}}'
 
-    all:
-        desc: 'Build and Synchronize'
-        silent: true
-        cmds:
-            - task: build
-
     default:
         silent: true
         cmds:
