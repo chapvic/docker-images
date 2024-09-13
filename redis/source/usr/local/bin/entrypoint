@@ -19,6 +19,7 @@ REDIS_HOME=$(getent passwd ${sUSER} | awk -F: '{print $6}')
 REDIS_DEFAULT_CONFIG=${REDIS_HOME}/redis.conf
 
 REDIS_CONFIG=${REDIS_CONFIG:-}
+REDIS_OPTIONS=${REDIS_OPTIONS:-"--protected-mode no"}
 
 if [ -z "sUID" ] || [ -z "sGID" ]; then
     echo -e "${CL_RED}User or group '${sUSER}' is not exist!${CL_NONE}"
@@ -48,7 +49,7 @@ if [ -z "$1" ]; then
             REDIS_CONFIG=$REDIS_DEFAULT_CONFIG
         fi
     fi
-    exec su-exec ${sUSER} redis-server ${REDIS_CONFIG}
+    exec su-exec ${sUSER} redis-server ${REDIS_OPTIONS} ${REDIS_CONFIG}
 else
     exec "$@"
 fi;
