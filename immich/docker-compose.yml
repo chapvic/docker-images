@@ -8,6 +8,8 @@ services:
             dockerfile: ../../Dockerfile.machine-learning
             tags:
                 - $REGISTRY/$NAME-machine-learning:latest
+                - $SYNC_TARGET/$NAME-machine-learning:latest
+                - $SYNC_TARGET/$NAME-machine-learning:$IMMICH_VERSION
 
     server:
         image: $REGISTRY/$NAME-server:$IMMICH_VERSION
@@ -17,6 +19,8 @@ services:
             dockerfile: ../Dockerfile.server
             tags:
                 - $REGISTRY/$NAME-server:latest
+                - $SYNC_TARGET/$NAME-server:latest
+                - $SYNC_TARGET/$NAME-server:$IMMICH_VERSION
 
     web:
         image: $REGISTRY/$NAME-web:$IMMICH_VERSION
@@ -26,3 +30,5 @@ services:
             dockerfile: ../../Dockerfile.web
             tags:
                 - $REGISTRY/$NAME-web:latest
+                - $SYNC_TARGET/$NAME-web:latest
+                - $SYNC_TARGET/$NAME-web:$IMMICH_VERSION
