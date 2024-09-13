@@ -7,8 +7,8 @@ ARG POSTGRES_SOURCE \
     POSTGRES_TAG \
     PG_VECTOR_VERSION \
     PG_VECTOR_SOURCE \
-    LLVM_VERSION=${LLVM_VERSION:-15} \
-    CLANG_VERSION=${CLANG_VERSION:-15}
+    LLVM_VERSION=${LLVM_VERSION:-16} \
+    CLANG_VERSION=${CLANG_VERSION:-16}
 ENV LLVM_CONFIG="/usr/lib/llvm${LLVM_VERSION}/bin/llvm-config" \
     CLANG=clang-${CLANG_VERSION}
 RUN apk add --no-cache --upgrade \
@@ -51,8 +51,8 @@ RUN make -j$(nproc) -C contrib install
 
 FROM $REGISTRY/alpine AS postgres
 ARG POSTGRES_VERSION \
-    LLVM_VERSION=${LLVM_VERSION:-15} \
-    CLANG_VERSION=${CLANG_VERSION:-15} \
+    LLVM_VERSION=${LLVM_VERSION:-16} \
+    CLANG_VERSION=${CLANG_VERSION:-16} \
     PUID ${PUID:-1000} \
     PGID ${PGID:-1000}
 RUN apk add --no-cache --upgrade lz4 lz4-libs zstd libxml2 libxslt musl-libintl musl-locales e2fsprogs-libs \

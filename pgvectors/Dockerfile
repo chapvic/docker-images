@@ -7,13 +7,13 @@ FROM $REGISTRY/postgres:${POSTGRES_VERSION} AS postgres-app
 
 FROM $REGISTRY/rust AS pgvectors-builder
 ARG ARCH \
-    CLANG_VERSION \
-    LLVM_VERSION \
     POSTGRES_VERSION \
     PGVECTORS_VERSION \
     PGVECTORS_SOURCE \
-    PUID \
-    PGID
+    LLVM_VERSION=${LLVM_VERSION:-16} \
+    CLANG_VERSION=${CLANG_VERSION:-16} \
+    PUID ${PUID:-1000} \
+    PGID ${PGID:-1000}
 ENV RUSTFLAGS=-Ctarget-feature=-crt-static \
     CLANG=clang-${CLANG_VERSION} \
     LLVM_CONFIG="/usr/lib/llvm${LLVM_VERSION}/bin/llvm_config"

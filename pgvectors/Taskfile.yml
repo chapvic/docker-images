@@ -12,7 +12,7 @@ tasks:
             - echo "- PgVectors {{.PGVECTORS_VERSION}} (Postres {{.POSTGRES_VERSION}})"
             - sed -i '/POSTGRES_VERSION=/d; /PGVECTORS_VERSION=/d' .env
             - echo -e "POSTGRES_VERSION={{.POSTGRES_VERSION}}\nPGVECTORS_VERSION={{.PGVECTORS_VERSION}}" >> .env
-            - docker compose build #--push
+            - docker compose build --push
             - sed -i '/POSTGRES_VERSION=/d; /PGVECTORS_VERSION=/d' .env
             - echo "[ Done ]"
 
