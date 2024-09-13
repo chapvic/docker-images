@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1.8.1
 
 ARG REGISTRY \
-    POSTGRES_VERSION \
-    PGVECTORS_VERSION
+    POSTGRES_VERSION
 
 FROM $REGISTRY/postgres:${POSTGRES_VERSION} AS postgres-app
 
@@ -12,6 +11,7 @@ ARG ARCH \
     LLVM_VERSION \
     POSTGRES_VERSION \
     PGVECTORS_VERSION \
+    PGVECTORS_SOURCE \
     PUID \
     PGID
 ENV RUSTFLAGS=-Ctarget-feature=-crt-static \
@@ -23,7 +23,7 @@ RUN apk add --no-cache clang${CLANG_VERSION}-dev clang${CLANG_VERSION}-static \
     libuuid tcl icu-libs icu-data-full krb5-libs openldap openldap-back-mdb openldap-overlay-all && \
     groupadd -g $PGID postgres && \
     useradd -g $PGID -u $PUID -d /home/postgres -s /bin/bash -m postgres && \
-    git clone -b v$PGVECTORS_VERSION https://gitfox.ru/database/pgvecto.rs.git /src && \
+    git clone -b v$PGVECTORS_VERSION $PGVECTORS_SOURCE /src && \
     sed -i 's/^version =.*/version = "'$PGVECTORS_VERSION'"/' Cargo.toml && \
     sed -i 's/@CARGO_VERSION@/'${PGVECTORS_VERSION}'/' vectors.control
 ENV PGDATA=/data \
