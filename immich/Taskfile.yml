@@ -19,7 +19,7 @@ tasks:
             - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/machine-learning/Dockerfile > Dockerfile.machine-learning
             - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/server/Dockerfile > Dockerfile.server
             - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/web/Dockerfile > Dockerfile.web
-            - docker compose build
+            - docker compose build --push
             - rm -rf immich Dockerfile.*
             - sed -i '/IMMICH_VERSION=/d' .env
             - echo "[ Done ]"

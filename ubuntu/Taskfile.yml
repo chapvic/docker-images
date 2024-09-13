@@ -36,30 +36,6 @@ tasks:
                 TITLE: 'Ubuntu Linux ({{.ITEM}})'
                 VERSION: '{{.ITEM}}'
 
-    sync-ubuntu:
-        silent: true
-        internal: true
-        vars:
-            UBUNTU_VERSION:
-                sh: basename $(lynx -dump -listonly {{.UBUNTU_URL}}/{{.VERSION}}/release/ | grep -E '\-{{.UBUNTU_ARCH}}.tar.gz$' | awk '{print $2}' | sort --version-sort | tail -n1) | awk -F'-' '{print $3}' | awk -F'.' '{print $1"."$2}'
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.UBUNTU_VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.UBUNTU_VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.UBUNTU_VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.UBUNTU_VERSION}}
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:latest => {{.SYNC_TARGET}}/{{.NAME}}:latest"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:latest docker://{{.SYNC_TARGET}}/{{.NAME}}:latest
-            - echo "[ Done ]"
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: UBUNTU_VERSION_LIST }
-              task: sync-ubuntu
-              vars:
-                VERSION: '{{.ITEM}}'
 
     checkout-ubuntu:
         silent: true
@@ -80,7 +56,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

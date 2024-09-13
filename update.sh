@@ -17,14 +17,14 @@ echo "=== Checkout updates ==="
 while IDS= read -r name; do
     # Checkout newer version of package
     pushd $name > /dev/null
-    tags=$(task checkout 2>/dev/null)
+    tags=$(task checkout 2>/dev/null | xargs)
     popd > /dev/null
 
     # Get saved package version, if exist
-    saved_tags=$(grep -E "^$name\=" .releases | awk -F= '{print $2}')
+    saved_tags=$(grep -E "^$name\=" .releases | awk -F= '{print $2}' | xargs)
 
     # If no version, mark as exclamation
-    [[ -n $saved_tags ]] || saved_tags="[none]"
+    [[ -n "$saved_tags" ]] || saved_tags="[none]"
 
     # Check for package rebuild reason
     if [[ -n "$tags" ]] && [[ ! "$tags" == "$saved_tags" ]]; then

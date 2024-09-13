@@ -11,3 +11,6 @@ services:
             tags:
                 - $REGISTRY/$NAME:$VERSION
                 - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$UBUNTU_VERSION
+                - $SYNC_TARGET/$NAME:$VERSION
+                - $SYNC_TARGET/$NAME:latest
