@@ -28,6 +28,6 @@ powershell=7.4.5
 rust=latest
 samba=latest
 squid=6.10 
-ubuntu=20.04.5 22.04.5 24.04.1
+ubuntu=20.04.5 22.04.4 24.04.1
 unit=1.32.1-1
 yadisk=latest
