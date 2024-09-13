@@ -27,24 +27,6 @@ tasks:
                 TITLE: 'Ansible VMware {{.ITEM}}'
                 VERSION: '{{.ITEM}}'
 
-    sync-plugin:
-        silent: true
-        internal: true
-        cmds:
-            - echo "Sync {{.REGISTRY}}/{{.NAME}}:{{.VERSION}} => {{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}"
-            - skopeo copy docker://{{.REGISTRY}}/{{.NAME}}:{{.VERSION}} docker://{{.SYNC_TARGET}}/{{.NAME}}:{{.VERSION}}
-            - echo "[ Done ]"
-
-    sync:
-        desc: 'Synchronize with DockerHub'
-        silent: true
-        cmds:
-            - echo -e '\e[44;1m[ Synchronize with DockerHub ]\e[0;0m'
-            - for: { var: VMWARE_PLUGIN_VERSION_LIST }
-              task: sync-plugin
-              vars:
-                VERSION: '{{.ITEM}}'
-
     checkout-plugin:
         silent: true
         internal: true
@@ -64,7 +46,6 @@ tasks:
         silent: true
         cmds:
             - task: build
-            - task: sync
 
     default:
         silent: true

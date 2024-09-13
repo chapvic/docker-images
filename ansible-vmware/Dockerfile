@@ -3,7 +3,7 @@
 ARG REGISTRY \
     OS_VERSION
 
-FROM $REGISTRY/$OS_VERSION AS ansible-builder
+FROM $OS_VERSION AS ansible-builder
 ARG ANSIBLE_VERSION \
     TZ
 RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \

@@ -12,3 +12,5 @@ services:
                 - ANSIBLE_VERSION
                 - VMWARE_PLUGIN_VERSION
                 - TZ
+            tags:
+                - $SYNC_TARGET/$NAME:$VMWARE_PLUGIN_VERSION
