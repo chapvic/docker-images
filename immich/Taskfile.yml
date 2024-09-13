@@ -18,7 +18,6 @@ tasks:
             - git clone -b v{{.IMMICH_VERSION}} {{.IMMICH_SOURCE}} immich
             - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/machine-learning/Dockerfile > Dockerfile.machine-learning
             - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/server/Dockerfile > Dockerfile.server
-            - sed -r "s,@sha256:[a-f0-9]+,,g;" immich/web/Dockerfile > Dockerfile.web
             - docker compose build --push
             - rm -rf immich Dockerfile.*
             - sed -i '/IMMICH_VERSION=/d' .env
