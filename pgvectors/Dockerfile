@@ -12,8 +12,8 @@ ARG ARCH \
     PGVECTORS_SOURCE \
     LLVM_VERSION=${LLVM_VERSION:-16} \
     CLANG_VERSION=${CLANG_VERSION:-16} \
-    PUID ${PUID:-1000} \
-    PGID ${PGID:-1000}
+    PUID=${PUID:-1000} \
+    PGID=${PGID:-1000}
 ENV RUSTFLAGS=-Ctarget-feature=-crt-static \
     CLANG=clang-${CLANG_VERSION} \
     LLVM_CONFIG="/usr/lib/llvm${LLVM_VERSION}/bin/llvm_config"
