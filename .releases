@@ -30,5 +30,5 @@ redis=6.2.14 7.4.0
 rust=latest
 samba=latest
 squid=6.11
-unit=1.32.1-1
+unit=1.33.0
 yadisk=latest
