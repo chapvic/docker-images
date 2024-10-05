@@ -1,5 +1,2 @@
 # BUILD LIST
-redis
-nginx
-minio
-immich
+keycloak
