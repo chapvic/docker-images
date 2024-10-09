@@ -10,7 +10,7 @@ update_list=""
 commit_text=""
 
 if [ -f .releases ]; then
-    cp .releases .releases.$(date +%Y%M%d_%H%M%S)
+    cp .releases .releases.$(date +%Y%m%d_%H%M%S)
 fi
 
 echo "=== Checkout updates ==="
