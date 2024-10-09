@@ -1,4 +1,8 @@
 # BUILD LIST
-erlang
-gitea
-element
+actions
+rust
+apache
+kms
+samba
+yadisk
+code-server
