@@ -29,6 +29,6 @@ powershell=7.4.5
 redis=6.2.16 7.4.1
 rust=latest
 samba=latest
-squid=6.11
+squid=6.12
 unit=1.33.0-1
 yadisk=latest
