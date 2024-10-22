@@ -1,7 +1,7 @@
 services:
 
     onedrive:
-        image: $REGISTRY/$NAME:$ONEDRIVE_VERSION
+        image: $REGISTRY/$NAME:$PROMETHEUS_VERSION
         env_file: .env
         build:
             context: .
@@ -10,11 +10,9 @@ services:
                 - REGISTRY
                 - PUID
                 - PGID
-                - ONEDRIVE_SOURCE
-                - ONEDRIVE_VERSION
-                - GOSU_SOURCE
-                - GOSU_VERSION
+                - PROMETHEUS_SOURCE
+                - PROMETHEUS_VERSION
             tags:
                 - $REGISTRY/$NAME:latest
-                - $SYNC_TARGET/$NAME:$ONEDRIVE_VERSION
+                - $SYNC_TARGET/$NAME:$PROMETHEUS_VERSION
                 - $SYNC_TARGET/$NAME:latest
