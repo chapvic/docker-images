@@ -1,6 +1,6 @@
 services:
 
-    onedrive:
+    prometheus:
         image: $REGISTRY/$NAME:$PROMETHEUS_VERSION
         env_file: .env
         build:
