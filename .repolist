@@ -8,6 +8,7 @@ postgres
 pgvectors
 pgpro
 mariadb
+prometheus
 redis
 gitea
 gitea-runner

@@ -1,0 +1,33 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Prometheus'
+        silent: true
+        vars:
+            PROMETHEUS_VERSION:
+                sh: git ls-remote --tags {{.PROMETHEUS_SOURCE}} 'refs/tags/v*' | sed 's,.*\/,,; s,\^{},,;' | grep -E 'v[0-9.]+$' | sort --version-sort --uniq | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo -e '\e[44;1m[ Building Prometheus ]\e[0;0m'
+            - sed -i '/PROMETHEUS_VERSION=/d' .env
+            - echo "PROMETHEUS_VERSION={{.PROMETHEUS_VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/PROMETHEUS_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            PROMETHEUS_VERSION:
+                sh: git ls-remote --tags {{.PROMETHEUS_SOURCE}} 'refs/tags/v*' | sed 's,.*\/,,; s,\^{},,;' | grep -E 'v[0-9.]+$' | sort --version-sort --uniq | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo "{{.PROMETHEUS_VERSION}}"
+
+    default:
+        silent: true
+        cmds:
+            - task -l
