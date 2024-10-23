@@ -39,5 +39,6 @@ pwsh -Command Install-Module VMware.PowerCLI -Scope AllUsers
 pwsh -Command Set-PowerCLIConfiguration -Scope AllUsers -ParticipateInCeip:\$true -InvalidCertificateAction Ignore -DisplayDeprecationWarnings:\$false -Confirm:\$false
 EOF
 ADD source/profile.ps1 /root/.config/powershell/
+ADS source/entrypoint /usr/local/bin/
 ENV POWERSHELL_VERSION=$POWERSHELL_VERSION
-ENTRYPOINT ["pwsh"]
+ENTRYPOINT ["entrypoint"]
