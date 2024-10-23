@@ -1,0 +1,18 @@
+services:
+
+    ocis:
+        image: $REGISTRY/$NAME:$OCIS_VERSION
+        env_file: .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - REGISTRY
+                - PUID
+                - PGID
+                - OCIS_SOURCE
+                - OCIS_VERSION
+            tags:
+                - $REGISTRY/$NAME:latest
+                - $SYNC_TARGET/$NAME:$OCIS_VERSION
+                - $SYNC_TARGET/$NAME:latest

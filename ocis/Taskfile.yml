@@ -1,0 +1,33 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'OwnCloud Infinite Scale'
+        silent: true
+        vars:
+            OCIS_VERSION:
+                sh: git ls-remote --tags {{.OCIS_SOURCE}} 'refs/tags/v*' | sed 's,.*\/,,; s,\^{},,;' | grep -E 'v[0-9.]+$' | sort --version-sort --uniq | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo -e '\e[44;1m[ Building OwnCloud Infinite Scale ]\e[0;0m'
+            - sed -i '/OCIS_VERSION=/d' .env
+            - echo "OCIS_VERSION={{.OCIS_VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/OCIS_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            OCIS_VERSION:
+                sh: git ls-remote --tags {{.OCIS_SOURCE}} 'refs/tags/v*' | sed 's,.*\/,,; s,\^{},,;' | grep -E 'v[0-9.]+$' | sort --version-sort --uniq | tail -n1 | sed -r 's/v(.*)/\1/'
+        cmds:
+            - echo "{{.OCIS_VERSION}}"
+
+    default:
+        silent: true
+        cmds:
+            - task -l
