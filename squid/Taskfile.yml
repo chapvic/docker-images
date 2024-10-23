@@ -10,7 +10,7 @@ tasks:
         internal: true
         vars:
             SQUID_VERSION:
-                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sed -re 's,'$prefix'(.*),\1,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
+                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
             SQUID_TAG:
                 sh: echo SQUID_{{.SQUID_VERSION}} | tr '.' '_'
         cmds:
@@ -37,7 +37,7 @@ tasks:
         internal: true
         vars:
             SQUID_VERSION:
-                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | sed -re 's,'$prefix'(.*),\1,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
+                sh: git ls-remote --tags {{.SQUID_SOURCE}} 'refs/tags/SQUID_'{{.VERSION}}'_*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | tr '_' '.' | sort --version-sort | tail -n1 | sed -r 's/SQUID\.(.*)/\1/'
         cmds:
             - echo -n "{{.SQUID_VERSION}} "
 
