@@ -1,2 +1,6 @@
 # BUILD LIST
+forgejo-runner
+keycloak
+minio
+element
 immich
