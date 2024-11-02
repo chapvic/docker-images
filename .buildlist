@@ -1,6 +1,5 @@
 # BUILD LIST
+erlang
+mariadb
 forgejo-runner
 keycloak
-minio
-element
-immich
