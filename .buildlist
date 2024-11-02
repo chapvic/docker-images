@@ -1,5 +1,4 @@
 # BUILD LIST
-erlang
 mariadb
 forgejo-runner
 keycloak
