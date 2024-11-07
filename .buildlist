@@ -1,4 +1,3 @@
 # BUILD LIST
-prometheus
-element
-immich
+golang
+samba
