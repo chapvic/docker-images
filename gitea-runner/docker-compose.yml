@@ -1,6 +1,6 @@
 services:
 
-    runner:
+    gitea-runner:
         image: $REGISTRY/$NAME:$RUNNER_VERSION
         env_file: .env
         build:

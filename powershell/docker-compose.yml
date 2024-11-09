@@ -1,6 +1,6 @@
 services:
 
-    caddy:
+    powershell:
         image: $REGISTRY/$NAME:$POWERSHELL_VERSION
         env_file: .env
         build:

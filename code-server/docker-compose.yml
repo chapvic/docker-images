@@ -1,6 +1,6 @@
 services:
 
-    apache:
+    code-server:
         image: $REGISTRY/$NAME:latest
         env_file: .env
         build:

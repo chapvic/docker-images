@@ -1,6 +1,6 @@
 services:
 
-    machine-learning:
+    immich-machine-learning:
         image: $REGISTRY/$NAME-machine-learning:$IMMICH_VERSION
         env_file: .env
         build:
@@ -11,7 +11,7 @@ services:
                 - $SYNC_TARGET/$NAME-machine-learning:latest
                 - $SYNC_TARGET/$NAME-machine-learning:$IMMICH_VERSION
 
-    server:
+    immich-server:
         image: $REGISTRY/$NAME-server:$IMMICH_VERSION
         env_file: .env
         build:
