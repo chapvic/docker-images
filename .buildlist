@@ -1,2 +1,6 @@
 # BUILD LIST
-mariadb
+apache
+php
+kms
+yadisk
+code-server
