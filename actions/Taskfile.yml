@@ -3,9 +3,6 @@ version: 3
 
 dotenv: [ '.env' ]
 
-vars:
-    TAGS: "alpine"
-
 tasks:
 
     build-tag:
@@ -24,8 +21,8 @@ tasks:
             - for: { var: TAGS }
               task: build-tag
               vars:
-                TITLE: "- Action TAG [{{.ITEM}}]"
-                TAG: '{{.ITEM}}'
+                TITLE: "- Action TAG [actions-{{.ITEM}}]"
+                TAG: 'actions-{{.ITEM}}'
 
     checkout:
         silent: true

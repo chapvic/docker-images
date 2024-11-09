@@ -1,6 +1,6 @@
 services:
 
-    actions:
+    actions-alpine:
         image: $REGISTRY/$NAME:alpine
         env_file: .env
         build:
