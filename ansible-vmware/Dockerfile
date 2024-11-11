@@ -14,7 +14,7 @@ RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && \
     apt-get clean
 ENV PATH=/opt/venv/bin:$PATH
 RUN python3 -m venv /opt/venv
-RUN pip install jinja2 resolvelib PyYAML
+RUN pip install setuptools jinja2 resolvelib PyYAML
 RUN wget https://github.com/ansible/ansible/archive/refs/tags/v${ANSIBLE_VERSION}.tar.gz && \
     tar xzf v${ANSIBLE_VERSION}.tar.gz && \
     cd ansible-${ANSIBLE_VERSION} && \
