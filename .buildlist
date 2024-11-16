@@ -1,6 +1,2 @@
 # BUILD LIST
-postgres
-mariadb
 prometheus
-forgejo-runner
-onedrive

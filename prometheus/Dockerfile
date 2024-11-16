@@ -18,8 +18,8 @@ ARG PUID=${PUID:-1000} \
 RUN mkdir -p /app/bin /app/data /app/etc
 COPY --from=prom-builder /src/prometheus/prometheus /src/prometheus/promtool /app/bin
 COPY --from=prom-builder /src/prometheus/documentation/examples/prometheus.yml /app/etc/prometheus.yml
-COPY --from=prom-builder /src/prometheus/console_libraries /app/etc/console_libraries
-COPY --from=prom-builder /src/prometheus/consoles /app/etc/consoles
+#COPY --from=prom-builder /src/prometheus/console_libraries /app/etc/console_libraries
+#COPY --from=prom-builder /src/prometheus/consoles /app/etc/consoles
 WORKDIR /app
 RUN groupadd -g $PGID prometheus && \
     useradd -g $PGID -u $PUID -d /app prometheus && \
