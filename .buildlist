@@ -1,4 +1,6 @@
 # BUILD LIST
-redis
-element
-immich
+postgres
+mariadb
+prometheus
+forgejo-runner
+onedrive
