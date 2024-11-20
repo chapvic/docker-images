@@ -1,1 +1,6 @@
 # BUILD LIST
+postgres
+forgejo-runner
+element
+grafana
+immich
