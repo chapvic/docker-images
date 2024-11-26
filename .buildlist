@@ -1,17 +1,7 @@
 # BUILD LIST
-golang
-prometheus
-redis
-gitea
-gitea-runner
-forgejo-runner
-keycloak
-bind9
-unit
 ocis
 onedrive
 minio
-squid
 dendrite
 element
 grafana
