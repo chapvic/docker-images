@@ -1,10 +1,18 @@
 # BUILD LIST
-alpine
-rust
-caddy
-nginx
-apache
-php
-kms
-samba
-code-server
+golang
+prometheus
+redis
+gitea
+gitea-runner
+forgejo-runner
+keycloak
+bind9
+unit
+ocis
+onedrive
+minio
+squid
+dendrite
+element
+grafana
+immich
