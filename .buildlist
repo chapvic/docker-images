@@ -1,2 +1,10 @@
 # BUILD LIST
-gitea
+alpine
+rust
+caddy
+nginx
+apache
+php
+kms
+samba
+code-server
