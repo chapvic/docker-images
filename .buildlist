@@ -1,5 +1,2 @@
 # BUILD LIST
-actions
-erlang
-forgejo-runner
-nginx
+prometheus
