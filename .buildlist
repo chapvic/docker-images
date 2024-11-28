@@ -1,2 +1,5 @@
 # BUILD LIST
-pgvectors
+actions
+erlang
+forgejo-runner
+nginx
