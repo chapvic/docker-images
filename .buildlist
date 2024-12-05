@@ -1,9 +1,2 @@
 # BUILD LIST
-prometheus
-gitea
-caddy
-onedrive
-minio
-dendrite
-code-server
 immich
