@@ -1,3 +1,9 @@
 # BUILD LIST
-erlang
-grafana
+prometheus
+gitea
+caddy
+onedrive
+minio
+dendrite
+code-server
+immich
