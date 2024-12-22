@@ -1,6 +1,2 @@
 # BUILD LIST
-forgejo-runner
-ocis
-minio
-element
-immich
+unit
