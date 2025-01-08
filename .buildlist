@@ -1,2 +1,7 @@
 # BUILD LIST
-immich
+actions
+rust
+apache
+kms
+samba
+code-server
