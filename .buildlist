@@ -1,7 +1,7 @@
 # BUILD LIST
-actions
-rust
-apache
-kms
-samba
-code-server
+gitea-runner
+forgejo-runner
+bind9
+dendrite
+element
+grafana
