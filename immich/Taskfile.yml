@@ -11,7 +11,7 @@ tasks:
         vars:
 #            IMMICH_VERSION:
 #                sh: git ls-remote --tags {{.IMMICH_SOURCE}} 'refs/tags/*' 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -E '^v[0-9.]+$' | sort --version-sort | tail -n1 | sed 's/v//'
-            IMMICH_VERSION: v1.124.0
+            IMMICH_VERSION: 1.124.0
         cmds:
             - echo -e '\e[44;1m[ Building Immich Server ]\e[0;0m'
             - sed -i '/IMMICH_VERSION=/d' .env
@@ -29,7 +29,7 @@ tasks:
         vars:
 #            IMMICH_VERSION:
 #                sh: git ls-remote --tags {{.IMMICH_SOURCE}} 'refs/tags/*' 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -E '^v[0-9.]+$' | sort --version-sort | tail -n1 | sed 's/v//'
-            IMMICH_VERSION: v1.124.0
+            IMMICH_VERSION: 1.124.0
         cmds:
             - echo {{.IMMICH_VERSION}}
 
