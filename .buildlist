@@ -1,7 +1,6 @@
 # BUILD LIST
-gitea-runner
-forgejo-runner
-bind9
-dendrite
-element
-grafana
+keycloak
+nginx
+ocis
+onedrive
+minio
