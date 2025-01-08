@@ -1,6 +1,2 @@
 # BUILD LIST
-prometheus
-unit
-php
-powershell
-squid
+golang
