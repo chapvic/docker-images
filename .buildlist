@@ -1,6 +1,6 @@
 # BUILD LIST
-keycloak
-nginx
-ocis
-onedrive
-minio
+prometheus
+unit
+php
+powershell
+squid
