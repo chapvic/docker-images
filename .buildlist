@@ -1,6 +1,5 @@
 # BUILD LIST
-unit
-php
-yadisk
-powershell
-squid
+alt
+erlang
+pgpro
+gitea
