@@ -6,5 +6,6 @@ DST="./options/locale/locale_ru-RU.ini"
 MOD="/opt/translate.ini"
 
 echo "Fix translations..."
+rm -f $DST
 /opt/fix_locale -in $DST -mod $MOD -out $DST
 echo "Translation finished."
