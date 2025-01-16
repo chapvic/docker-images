@@ -3,11 +3,10 @@
 set -e
 
 INI="locale_ru-RU.ini"
+
 DST="/src/gitea/options/locale/$INI"
 MOD="/opt/translate.ini"
 
 echo "Fix translations..."
-cp $DST ./$INI
-rm -f $DST
-/opt/fix_locale -in $INI -mod $MOD -out $DST
+/opt/fix_locale -in $DST -mod $MOD -out $DST
 echo "Translation finished."
