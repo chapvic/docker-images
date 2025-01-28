@@ -1,4 +1,5 @@
 # BUILD LIST
 erlang
-powershell
+element
+grafana
 immich
