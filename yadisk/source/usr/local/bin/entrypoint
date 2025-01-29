@@ -61,7 +61,7 @@ if [ -z "$1" ] || [ "$1" == "setup" ] ; then
         echo -e "${CL_MAGENTA}"
         echo -e "[ --- SETUP MODE --- ]"
         echo -e "${CL_NONE}"
-        "$@" setup
+        "$@" setup 2>&1
     else
         if ! [ -f ${config_file} ]; then
             echo -e "${CL_RED}FATAL: Configuration file is not found!${CL_NONE}"
