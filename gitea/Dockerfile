@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.8.1
 
 ARG REGISTRY
 
