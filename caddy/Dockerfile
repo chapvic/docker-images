@@ -10,6 +10,7 @@ WORKDIR /src/xcaddy/cmd/xcaddy
 RUN go build -o /usr/bin/xcaddy
 RUN xcaddy build v${CADDY_VERSION} --output /app/bin/caddy \
     --with github.com/porech/caddy-maxmind-geolocation \
+    --with github.com/ueffel/caddy-markdown-ex \
     --with github.com/lindenlab/caddy-s3-proxy \
     --with github.com/greenpau/caddy-security@latest \
     --with github.com/greenpau/caddy-security-secrets-aws-secrets-manager@latest \
