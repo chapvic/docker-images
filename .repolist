@@ -29,7 +29,6 @@ minio
 powershell
 squid
 dendrite
-element
 grafana
 ansible-vmware
 code-server
