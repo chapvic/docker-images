@@ -1,4 +1,3 @@
 # BUILD LIST
-postgres
-keycloak
-immich
+alpine
+erlang
