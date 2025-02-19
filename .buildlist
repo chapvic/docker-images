@@ -1,3 +1,6 @@
 # BUILD LIST
-alpine
-erlang
+postgres
+prometheus
+gitea
+minio
+grafana
