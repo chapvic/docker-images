@@ -1,6 +1,3 @@
 # BUILD LIST
-postgres
-prometheus
-gitea
-minio
-grafana
+erlang
+bind9
