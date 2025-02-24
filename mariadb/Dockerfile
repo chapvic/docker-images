@@ -2,7 +2,7 @@
 
 ARG REGISTRY
 
-FROM $REGISTRY/alpine-dev:3.21 AS mariadb-builder
+FROM $REGISTRY/alpine-dev:3.18 AS mariadb-builder
 ARG MARIADB_SOURCE \
     MARIADB_TAG
 RUN apk add --no-cache --upgrade snappy-dev boost-dev
