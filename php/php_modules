@@ -42,7 +42,7 @@
 7    81    82    83    84       pgsql
 7    81    82    83    84       phar
 7    81    82    83    84       posix
-7    81    82    83    84       pspell
+7    81    82    83             pspell
 7    81    82    83    84       session
 7    81    82    83    84       shmop
 7    81    82    83    84       simplexml
