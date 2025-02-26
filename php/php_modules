@@ -1,65 +1,65 @@
-7    81    82    83    bcmath
-7    81    82    83    bz2
-7    81    82    83    calendar
-7    81    82    83    cgi
-7    81    82    83    common
-7    81    82    83    ctype
-7    81    82    83    curl
-7    81    82    83    dba
-7    81    82    83    dev
-7    81    82    83    doc
-7    81    82    83    dom
-7    81    82    83    embed
-7    81    82    83    enchant
-7    81    82    83    exif
-7    81    82    83    ffi
-7    81    82    83    fileinfo
-7    81    82    83    fpm
-7    81    82    83    ftp
-7    81    82    83    gd
-7    81    82    83    gettext
-7    81    82    83    gmp
-7    81    82    83    iconv
-7    81    82    83    imap
-7    81    82    83    intl
-7    81    82    83    json
-7    81    82    83    ldap
-7    81    82    83    litespeed
-7    81    82    83    mbstring
-7    81    82    83    mysqli
-7    81    82    83    mysqlnd
-7    81    82    83    odbc
-7    81    82    83    opcache
-7    81    82    83    openssl
-7    81    82    83    pcntl
-7    81    82    83    pdo
-7    81    82    83    pdo_dblib
-7    81    82    83    pdo_mysql
-7    81    82    83    pdo_odbc
-7    81    82    83    pdo_pgsql
-7    81    82    83    pdo_sqlite
-7    81    82    83    pear
-7    81    82    83    pgsql
-7    81    82    83    phar
-7    81    82    83    posix
-7    81    82    83    pspell
-7    81    82    83    session
-7    81    82    83    shmop
-7    81    82    83    simplexml
-7    81    82    83    snmp
-7    81    82    83    soap
-7    81    82    83    sockets
-7    81    82    83    sodium
-     81    82          spx
-7    81    82    83    sqlite3
-7    81    82    83    sysvmsg
-7    81    82    83    sysvsem
-7    81    82    83    sysvshm
-7    81    82    83    tidy
-7    81    82    83    tokenizer
-7    81    82    83    xml
-7    81    82    83    xmlreader
-7                      xmlrpc
-7    81    82    83    xmlwriter
-7    81    82    83    xsl
-7    81    82    83    zip
+7    81    82    83    84       bcmath
+7    81    82    83    84       bz2
+7    81    82    83    84       calendar
+7    81    82    83    84       cgi
+7    81    82    83    84       common
+7    81    82    83    84       ctype
+7    81    82    83    84       curl
+7    81    82    83    84       dba
+7    81    82    83    84       dev
+7    81    82    83    84       doc
+7    81    82    83    84       dom
+7    81    82    83    84       embed
+7    81    82    83    84       enchant
+7    81    82    83    84       exif
+7    81    82    83    84       ffi
+7    81    82    83    84       fileinfo
+7    81    82    83    84       fpm
+7    81    82    83    84       ftp
+7    81    82    83    84       gd
+7    81    82    83    84       gettext
+7    81    82    83    84       gmp
+7    81    82    83    84       iconv
+7    81    82    83             imap
+7    81    82    83    84       intl
+7    81    82    83             json
+7    81    82    83    84       ldap
+7    81    82    83    84       litespeed
+7    81    82    83    84       mbstring
+7    81    82    83    84       mysqli
+7    81    82    83    84       mysqlnd
+7    81    82    83    84       odbc
+7    81    82    83    84       opcache
+7    81    82    83    84       openssl
+7    81    82    83    84       pcntl
+7    81    82    83    84       pdo
+7    81    82    83    84       pdo_dblib
+7    81    82    83    84       pdo_mysql
+7    81    82    83    84       pdo_odbc
+7    81    82    83    84       pdo_pgsql
+7    81    82    83    84       pdo_sqlite
+7    81    82    83    84       pear
+7    81    82    83    84       pgsql
+7    81    82    83    84       phar
+7    81    82    83    84       posix
+7    81    82    83    84       pspell
+7    81    82    83    84       session
+7    81    82    83    84       shmop
+7    81    82    83    84       simplexml
+7    81    82    83    84       snmp
+7    81    82    83    84       soap
+7    81    82    83    84       sockets
+7    81    82    83    84       sodium
+     81    82          84       spx
+7    81    82    83    84       sqlite3
+7    81    82    83    84       sysvmsg
+7    81    82    83    84       sysvsem
+7    81    82    83    84       sysvshm
+7    81    82    83    84       tidy
+7    81    82    83    84       tokenizer
+7    81    82    83    84       xml
+7    81    82    83    84       xmlreader
+7                               xmlrpc
+7    81    82    83    84       xmlwriter
+7    81    82    83    84       xsl
+7    81    82    83    84       zip
