@@ -11,4 +11,3 @@ for f in $(ls -1 ./src/*); do
         echo "ERROR: File '$fn.patch' is not generated!"
     fi
 done
-
