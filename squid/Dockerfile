@@ -17,8 +17,8 @@ RUN apk -X https://dl-cdn.alpinelinux.org/alpine/edge/testing add --no-cache lib
     libnetfilter_conntrack-dev libgss-dev libaio-dev nettle-dev libcap-dev libltdl zlib-dev icu-dev xz-dev iputils-ping
 RUN git clone -b ${SQUID_TAG} ${SQUID_SOURCE} squid
 WORKDIR /src/squid
-ADD patch/src ./src
-RUN patch -d ./src -t client_side_request.cc -i client_side_request.cc.patch
+#ADD patch/src ./src
+#RUN patch -d ./src -t client_side_request.cc -i client_side_request.cc.patch
 RUN ./bootstrap.sh
 RUN ./configure --prefix=$SQUID_ROOT --sysconfdir=$SQUID_CONFDIR --with-logdir=$SQUID_LOGDIR --with-default-user=squid \
     $SQUID_OPT_WITH $SQUID_OPT_ENABLE $SQUID_OPT_DISABLE --enable-build-info="$SQUID_BUILD_INFO" CXXFLAGS='-w'

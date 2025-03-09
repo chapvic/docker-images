@@ -31,6 +31,6 @@ prometheus=3.2.1
 redis=6.2.17 7.4.2
 rust=latest
 samba=latest
-squid=6.13
+squid=6.13 7.0.1
 unit=1.34.2-1
 yadisk=latest
