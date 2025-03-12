@@ -30,7 +30,13 @@ func main() {
         panic("No output file defined!")
     }
 
-    ini, err := ini.Load(in, mod)
+    //ini, err := ini.Load(in, mod)
+    ini, err := ini.LoadSources(
+        ini.LoadOptions{
+            Loose: true,
+            PreserveSurroundedQuote: true,
+            IgnoreInlineComment: true,
+        }, in, mod)
     if err != nil {
         fmt.Printf("Fail to read file: %v", err)
         os.Exit(1)
