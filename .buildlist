@@ -1,2 +1,5 @@
 # BUILD LIST
-code-server
+gitea
+forgejo-runner
+grafana
+immich

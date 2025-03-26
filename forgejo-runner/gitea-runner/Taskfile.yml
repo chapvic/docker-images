@@ -1,0 +1,33 @@
+
+version: 3
+
+dotenv: [ '.env' ]
+
+tasks:
+
+    build:
+        desc: 'Build Gitea Action Runner'
+        silent: true
+        vars:
+            RUNNER_VERSION:
+                sh: git ls-remote --refs {{.RUNNER_SOURCE}} "refs/tags/v*" 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -Ev '\-' | sort --version-sort | tail -n1 | sed 's/^v//'
+        cmds:
+            - echo -e '\e[44;1m[ Building Gitea Action Runner ]\e[0;0m'
+            - sed -i '/RUNNER_VERSION=/d' .env
+            - echo "RUNNER_VERSION={{.RUNNER_VERSION}}" >> .env
+            - docker compose build --push
+            - sed -i '/RUNNER_VERSION=/d' .env
+            - echo "[ Done ]"
+
+    checkout:
+        silent: true
+        vars:
+            RUNNER_VERSION:
+                sh: git ls-remote --refs {{.RUNNER_SOURCE}} "refs/tags/v*" 2>/dev/null | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -Ev '\-' | sort --version-sort | tail -n1 | sed 's/^v//'
+        cmds:
+            - echo {{.RUNNER_VERSION}}
+
+    default:
+        silent: true
+        cmds:
+            - task -l
