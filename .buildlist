@@ -1,2 +1,5 @@
 # BUILD LIST
-yadisk
+erlang
+prometheus
+bind9
+nginx
