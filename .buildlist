@@ -1,7 +1,2 @@
 # BUILD LIST
-redis
-keycloak
-nginx
-minio
-grafana
-immich
+squid
