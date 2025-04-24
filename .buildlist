@@ -1,2 +1,7 @@
 # BUILD LIST
-caddy
+redis
+keycloak
+nginx
+minio
+grafana
+immich
