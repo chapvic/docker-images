@@ -29,6 +29,7 @@ tar xvf powershell-* -C /opt/powershell/
 rm -f /powershell-*
 chmod +x /opt/powershell/pwsh
 ln -sf /opt/powershell/pwsh /usr/bin/pwsh
+pwsh -Command Register-PSRepository -Default
 pwsh -Command Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 EOF
 ### -----------------------
