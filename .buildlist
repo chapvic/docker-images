@@ -1,5 +1,7 @@
 # BUILD LIST
-golang
-erlang
-postgres
-keycloak
+prometheus
+gitea
+bind9
+minio
+grafana
+immich
