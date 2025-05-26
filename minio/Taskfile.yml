@@ -1,3 +1,4 @@
+# RELEASE.2025-04-22T22-12-26Z
 
 version: 3
 
@@ -25,9 +26,9 @@ tasks:
         vars:
             MINIO_VERSION:
                 sh: git ls-remote --tags {{.MINIO_SOURCE}} 'refs/tags/RELEASE.*' | sed -e '/.*^{}/d' -e 's,.*\/,,' | grep -v 'rc' | sort --version-sort | tail -n2 | head -n1
+                sh: echo "RELEASE.2025-04-22T22-12-26Z"
         cmds:
-            #- echo {{.MINIO_VERSION}}
-            - echo "[!!! FREEZE VERSION !!!] - RELEASE.2025-04-22T22-12-26Z"
+            - echo {{.MINIO_VERSION}}
 
     default:
         silent: true
