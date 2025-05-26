@@ -14,3 +14,4 @@ services:
                 - PGID
             tags:
                 - $SYNC_TARGET/$NAME:latest
+                - $SYNC_TARGET/$MINIO_VERSION
