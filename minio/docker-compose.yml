@@ -13,5 +13,6 @@ services:
                 - PUID
                 - PGID
             tags:
+                - $REGISTRY/$NAME:$MINIO_VERSION
                 - $SYNC_TARGET/$NAME:latest
                 - $SYNC_TARGET/$NAME:$MINIO_VERSION
