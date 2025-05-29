@@ -1,1 +1,5 @@
 # BUILD LIST
+redis
+keycloak
+ocis
+immich
