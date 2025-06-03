@@ -1,2 +1,6 @@
 # BUILD LIST
-alpine
+apache
+kms
+samba
+yadisk
+code-server
