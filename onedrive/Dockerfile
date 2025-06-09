@@ -10,6 +10,7 @@ ARG ONEDRIVE_SOURCE \
 RUN git clone -b ${GOSU_VERSION} ${GOSU_SOURCE} gosu && cd gosu && go build -o /usr/local/bin/gosu
 RUN git clone -b v${ONEDRIVE_VERSION} ${ONEDRIVE_SOURCE}
 WORKDIR /src/onedrive
+RUN apk add --no-cache --upgrade dbus-dev
 RUN autoreconf -fiv && ./configure && make clean && make -j$(nproc) && make install
 RUN cp -f contrib/docker/entrypoint.sh /usr/local/bin/entrypoint
 
@@ -21,7 +22,7 @@ ARG ONEDRIVE_VERSION \
 COPY --from=onedrive-builder /usr/local/bin /usr/local/bin
 RUN <<EOF
 set -e
-apk add --no-cache --upgrade libcurl libgcc sqlite-libs ldc-runtime
+apk add --no-cache --upgrade dbus libcurl libgcc sqlite-libs ldc-runtime
 mkdir -p /onedrive/conf /onedrive/data
 EOF
 ENV ONEDRIVE_VERSION=$ONEDRIVE_VERSION \
