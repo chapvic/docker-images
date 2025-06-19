@@ -1,2 +1,5 @@
 # BUILD LIST
-gitea
+erlang
+bind9
+grafana
+immich
