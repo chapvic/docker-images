@@ -1,1 +1,10 @@
 # BUILD LIST
+prometheus
+redis
+gitea-runner
+forgejo-runner
+keycloak
+nginx
+minio
+powershell
+squid
