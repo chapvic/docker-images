@@ -1,10 +1,14 @@
 # BUILD LIST
+alpine
+golang
+erlang
 prometheus
-redis
-gitea-runner
+gitea
 forgejo-runner
 keycloak
-nginx
+bind9
+ocis
 minio
-powershell
 squid
+grafana
+immich
