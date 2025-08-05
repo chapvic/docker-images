@@ -1,2 +1,4 @@
 # BUILD LIST
-alpine
+golang
+prometheus
+forgejo-runner
