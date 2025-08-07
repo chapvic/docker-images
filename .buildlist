@@ -1,6 +1,2 @@
 # BUILD LIST
-golang
-forgejo-runner
 bind9
-minio
-squid
