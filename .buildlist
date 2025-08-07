@@ -1,3 +1,6 @@
 # BUILD LIST
-keycloak
-immich
+golang
+forgejo-runner
+bind9
+minio
+squid
