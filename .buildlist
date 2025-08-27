@@ -1,5 +1,5 @@
 # BUILD LIST
-caddy
-nginx
-grafana
-immich
+apache
+samba
+yadisk
+code-server
