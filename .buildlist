@@ -1,5 +1,11 @@
 # BUILD LIST
-apache
-samba
-yadisk
-code-server
+erlang
+gitea
+gitea-runner
+forgejo-runner
+keycloak
+bind9
+unit
+minio
+powershell
+immich
