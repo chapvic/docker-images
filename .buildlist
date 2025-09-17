@@ -1,10 +1,4 @@
 # BUILD LIST
-erlang
-gitea
-gitea-runner
-forgejo-runner
-keycloak
-bind9
 unit
 minio
 powershell
