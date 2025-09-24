@@ -1,5 +1,8 @@
 # BUILD LIST
-unit
+prometheus
+forgejo-runner
+onedrive
 minio
 powershell
+grafana
 immich
