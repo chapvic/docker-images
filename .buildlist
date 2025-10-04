@@ -1,8 +1,5 @@
 # BUILD LIST
-prometheus
+redis
 forgejo-runner
-onedrive
-minio
-powershell
-grafana
+keycloak
 immich
