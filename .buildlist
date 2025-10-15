@@ -1,5 +1,5 @@
 # BUILD LIST
-redis
-forgejo-runner
-keycloak
+alpine
+nginx
+ocis
 immich
