@@ -1,5 +1,6 @@
 # BUILD LIST
-alpine
-nginx
-ocis
-immich
+prometheus
+forgejo-runner
+keycloak
+minio
+squid
