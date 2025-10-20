@@ -1,6 +1,2 @@
 # BUILD LIST
-prometheus
-forgejo-runner
-keycloak
-minio
-squid
+immich
