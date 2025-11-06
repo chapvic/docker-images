@@ -1,0 +1,16 @@
+=== Created new build list with 13 update(s) ===
+Packages:
+- erlang
+- prometheus
+- redis
+
+- gitea
+- forgejo-runner
+- keycloak
+- bind9
+- nginx
+- onedrive
+- powershell
+- squid
+- grafana
+- immich
