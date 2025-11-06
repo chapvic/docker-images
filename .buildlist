@@ -1,2 +1,3 @@
 # BUILD LIST
-gitea
+forgejo-runner
+keycloak
