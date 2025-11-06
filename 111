@@ -4,14 +4,15 @@ Packages:
 - prometheus
 - redis
 - gitea
-
 - forgejo-runner
 - keycloak
-
 - bind9
+
 - nginx
 - onedrive
 - powershell
+
 - squid
 - grafana
+
 - immich
