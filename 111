@@ -7,7 +7,6 @@ Packages:
 - forgejo-runner
 - keycloak
 - bind9
-
 - nginx
 - onedrive
 - powershell

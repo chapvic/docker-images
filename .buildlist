@@ -1,5 +1,4 @@
 # BUILD LIST
-keycloak
-nginx
-onedrive
-powershell
+squid
+grafana
+immich
