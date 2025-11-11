@@ -1,4 +1,5 @@
 # BUILD LIST
-erlang
-forgejo-runner
-keycloak
+apache
+kms
+samba
+yadisk
