@@ -1,4 +1,4 @@
 # BUILD LIST
-squid
-grafana
-immich
+erlang
+forgejo-runner
+keycloak
