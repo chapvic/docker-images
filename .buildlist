@@ -1,5 +1,4 @@
 # BUILD LIST
-apache
-kms
-samba
-yadisk
+erlang
+postgres
+keycloak
