@@ -1,4 +1,4 @@
 # BUILD LIST
-bind9
+keycloak
 grafana
 immich
