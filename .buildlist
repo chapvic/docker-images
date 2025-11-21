@@ -1,4 +1,4 @@
 # BUILD LIST
-erlang
-postgres
-keycloak
+bind9
+grafana
+immich
