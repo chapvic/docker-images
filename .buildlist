@@ -1,2 +1,7 @@
 # BUILD LIST
-immich
+prometheus
+gitea
+forgejo-runner
+keycloak
+nginx
+ocis
