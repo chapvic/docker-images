@@ -3,5 +3,6 @@ prometheus
 gitea
 forgejo-runner
 keycloak
-nginx
-ocis
+bind9
+grafana
+immich
