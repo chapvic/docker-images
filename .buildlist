@@ -1,8 +1,2 @@
 # BUILD LIST
-prometheus
-gitea
-forgejo-runner
 keycloak
-bind9
-grafana
-immich
