@@ -1,3 +1,5 @@
 # BUILD LIST
-golang
+gitea
 forgejo-runner
+bind9
+squid
