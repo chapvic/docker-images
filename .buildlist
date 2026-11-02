@@ -1,9 +1,2 @@
 # BUILD LIST
-caddy
-nginx
-ocis
-onedrive
-powershell
-squid
-grafana
-immich
+keycloak
