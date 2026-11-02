@@ -1,4 +1,9 @@
 # BUILD LIST
-alpine
-golang
-erlang
+caddy
+nginx
+ocis
+onedrive
+powershell
+squid
+grafana
+immich

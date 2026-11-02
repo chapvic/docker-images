@@ -14,7 +14,7 @@ gitea
 gitea-runner
 forgejo-runner
 keycloak
-bind9
+#bind9
 caddy
 nginx
 unit
