@@ -1,0 +1,11 @@
+# BUILD LIST
+alpine
+golang
+erlang
+postgres
+prometheus
+redis
+gitea
+gitea-runner
+forgejo-runner
+keycloak
