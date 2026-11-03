@@ -10,7 +10,7 @@ tasks:
         silent: true
         vars:
             OCIS_VERSION:
-                sh: git ls-remote --tags {{.OCIS_SOURCE}} | grep -E 'refs/tags/v[0-9]+\.' | sed -E 's|.*refs/tags/(v[0-9]+(\.[0-9]+)+)$|\1|' | grep -vE '(-rc|-dev)' | sort -V | tail -n 1
+                sh: git ls-remote --tags {{.OCIS_SOURCE}} | grep -E 'refs/tags/v[0-9]+\.' | sed -E 's|.*refs/tags/(v[0-9]+(\.[0-9]+)+)$|\1|' | grep -vE '(-rc|-dev)' | sort -V | tail -n 1 | sed 's/v//'
         cmds:
             - echo -e '\e[44;1m[ Building OwnCloud Infinite Scale ]\e[0;0m'
             - sed -i '/OCIS_VERSION=/d' .env
@@ -23,7 +23,7 @@ tasks:
         silent: true
         vars:
             OCIS_VERSION:
-                sh: git ls-remote --tags {{.OCIS_SOURCE}} | grep -E 'refs/tags/v[0-9]+\.' | sed -E 's|.*refs/tags/(v[0-9]+(\.[0-9]+)+)$|\1|' | grep -vE '(-rc|-dev)' | sort -V | tail -n 1
+                sh: git ls-remote --tags {{.OCIS_SOURCE}} | grep -E 'refs/tags/v[0-9]+\.' | sed -E 's|.*refs/tags/(v[0-9]+(\.[0-9]+)+)$|\1|' | grep -vE '(-rc|-dev)' | sort -V | tail -n 1 | sed 's/v//'
         cmds:
             - echo "{{.OCIS_VERSION}}"
 
