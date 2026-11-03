@@ -10,9 +10,9 @@ tasks:
         internal: true
         vars:
             PHP_NUM:
-                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | grep {{.PHP_VERSION}} | awk -n '{print $1}'
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | grep {{.PHP_VERSION}} | awk '{print $1}'
             ALPINE_VERSION:
-                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | grep {{.PHP_VERSION}} | awk -n '{print $3}'
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | grep {{.PHP_VERSION}} | awk '{print $3}'
             PHP_MODULES:
                 sh: grep '{{.PHP_NUM}} ' php_modules | sed -r 's/^[0-9 ]+//g; s/\s+//g; s/(.*)/php{{.PHP_NUM}}-\1/g' | tr '\n' ' '
             PECL_MODULES:
@@ -36,7 +36,7 @@ tasks:
         silent: true
         vars:
             PHP_VERSION_LIST:
-                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk -n '{printf "%s ",$2}'
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | '{printf "%s ",$2}'
         cmds:
             - echo -e '\e[44;1m[ Building PHP ]\e[0;0m'
             - for: { var: PHP_VERSION_LIST }
