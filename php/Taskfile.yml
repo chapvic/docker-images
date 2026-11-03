@@ -36,7 +36,7 @@ tasks:
         silent: true
         vars:
             PHP_VERSION_LIST:
-                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | '{printf "%s ",$2}'
+                sh: sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk '{printf "%s ",$2}'
         cmds:
             - echo -e '\e[44;1m[ Building PHP ]\e[0;0m'
             - for: { var: PHP_VERSION_LIST }
@@ -47,7 +47,7 @@ tasks:
     checkout:
         silent: true
         cmds:
-            - sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk -n '{printf "%s ",$2}'
+            - sed '/#.*$/d; /^\s+/d; /^\s/d; /^$/d' version_map | awk '{printf "%s ",$2}'
 
     default:
         silent: true
