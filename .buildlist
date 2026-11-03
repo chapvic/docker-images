@@ -1,2 +1,6 @@
 # BUILD LIST
-golang
+caddy
+apache
+php
+kms
+samba
